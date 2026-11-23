@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.yong.pojo.Result;
-import com.yong.pojo.SysUser;
 import com.yong.service.SysUserService;
 import com.yong.utils.AliyunOSSOperator;
 

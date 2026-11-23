@@ -1,13 +1,7 @@
-#配置数据库连接信息
 spring:
   application:
-    name: school_system
-  #数据库的连接信息
-  datasource:
-    url: jdbc:mysql://localhost:3306/school_system
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root
+    name: FriendCircle
+
   servlet:
     multipart:
       #最大单个文件大小
@@ -15,11 +9,18 @@ spring:
       #最大请求大小（所有文件）
       max-request-size: 100MB
 
-#Mybatis的相关配置
-mybatis:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    map-underscore-to-camel-case: true
+  #MongoDB数据源配置
+  mongodb:
+        # 主机地址
+    host: 127.0.0.1
+        # 数据库
+    database: friend-circle
+        # 默认端口是27017
+    port: 27017
+        
+  data:
+    mongodb:
+      field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
 
 #配置事务管理日志级别
 logging:
