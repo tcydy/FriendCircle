@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yong.mapper.TeacherMapper">
+
+  <!-- 查询 -->
+  <select id="list" resultType="com.yong.pojo.Teacher">
+    select t.*, d.name deptName
+    from teacher t
+    left join dept d on t.dept_id = d.id
+    <where>
+      <if test="name != null and name !=''">t.name like concat('%',#{name},'%')</if>
+      <if test="title != null and title !=''">and t.title like concat('%',#{title},'%')</if>
+      <if test="deptId != null">and t.dept_id = #{deptId} </if>
+      <if test="begin!= null and end!= null">and t.entry_date between #{begin} and #{end}</if>
+      <if test="salaryMin!= null and salaryMax!= null">and t.salary between #{salaryMin} and #{salaryMax}</if>
+    </where>
+    order by t.update_time desc
+  </select>
+
+  <!-- 批量删除教师的基本信息 -->
+  <delete id="delete">
+    delete from teacher where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+
+  <!-- 根据id更新教师基本信息 -->
+  <update id="updateById">
+    UPDATE teacher
+    <set>
+      <if test="deptId != null">dept_id = #{deptId},</if>
+      <if test="name != null and name != ''">name = #{name},</if>
+      <if test="title != null and title != ''">title = #{title},</if>
+      <if test="entryDate != null">entry_date = #{entryDate},</if>
+      <if test="salary != null">salary = #{salary},</if>
+      <if test="image != null and image != ''">image = #{image},</if>
+      <if test="updateTime != null">update_time = #{updateTime}</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <!-- 根据id查询教师信息 -->
+  <select id="getById" resultType="com.yong.pojo.Teacher">
+    select t.*, d.name deptName
+    from teacher t
+    left join dept d on d.id=t.dept_id
+    where t.id=#{id}
+  </select>
+
+  <!-- 把老师的院系ID置为null --> 
+  <update id="updateByDeptId">
+    update teacher set dept_id = null where dept_id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </update>
+
+  <!-- 返回老师查询下拉列表 -->
+  <select id="getTeacherIdOptions">
+        SELECT
+            name AS label,
+            id   AS value
+        FROM teacher
+        ORDER BY id ASC
+  </select>
+</mapper>

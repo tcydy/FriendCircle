@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yong.mapper.StudentMapper">
+
+  <!-- 查询 -->
+  <select id="list" resultType="com.yong.pojo.Student">
+    select s.*, d.name deptName, c.name className
+    from student s
+    left join dept d on s.dept_id = d.id
+    left join clss c on s.class_id = c.id
+    <where>
+      <if test="name != null and name !=''">s.name like concat('%',#{name},'%')</if>
+      <if test="gender != null">and s.gender = #{gender} </if>
+      <if test="begin!= null and end!= null">and s.enrollment_year between #{begin} and #{end}</if>
+      <if test="deptId != null">and s.dept_id = #{deptId} </if>
+      <if test="classId != null">and s.class_id = #{classId} </if>
+    </where>
+    order by s.update_time desc
+  </select>
+
+  <!-- 批量删除学生的基本信息 -->
+  <delete id="delete">
+    delete from student where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+
+  <!-- 根据id更新学生基本信息 -->
+  <update id="updateById">
+    UPDATE student
+    <set>
+      <if test="deptId != null">dept_id = #{deptId},</if>
+      <if test="classId != null">class_id = #{classId},</if>
+      <if test="name != null and name != ''">name = #{name},</if>
+      <if test="gender != null">gender = #{gender},</if>
+      <if test="image != null and image != ''">image = #{image},</if>
+      <if test="enrollmentYear != null">enrollment_year = #{enrollmentYear},</if>
+      <if test="updateTime != null">update_time = #{updateTime}</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <!-- 根据id查询学生信息 -->
+  <select id="getById" resultType="com.yong.pojo.Student">
+    select s.*, d.name deptName, c.name className
+    from student s
+    left join dept d on d.id=s.dept_id
+    left join clss c on c.id=s.class_id
+    where s.id=#{id}
+  </select>
+
+  <!-- 把学生的院系ID置为null -->
+  <update id="updateByDeptId">
+    update student set dept_id = null where dept_id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </update>
+
+  <!-- 把学生的班级ID置为null -->
+  <update id="updateByClassId">
+    update student set class_id = null where class_id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </update>
+
+
+  <!-- 返回学生查询下拉列表 -->
+  <select id="getStudentIdOptions">
+    SELECT
+      name AS label,
+      id   AS value
+    FROM student
+    ORDER BY id ASC
+  </select>
+
+</mapper>

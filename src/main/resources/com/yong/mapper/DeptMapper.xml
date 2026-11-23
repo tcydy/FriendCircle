@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yong.mapper.DeptMapper">
+    <!-- 查询 -->
+    <select id="list" resultType="com.yong.pojo.Dept">
+        select d.* from dept d
+        <where>
+            <if test="name != null and name !=''">d.name like concat('%',#{name},'%')</if>
+            <if test="officeLocation != null and officeLocation !=''">d.office_location like concat('%',#{officeLocation},'%')</if>
+        </where>
+        order by d.update_time desc
+    </select>
+
+    <!-- 返回院系查询下拉列表 -->
+    <select id="getDeptIdOptions">
+        SELECT
+            name AS label,
+            id   AS value
+        FROM dept
+        ORDER BY id ASC
+    </select>
+
+    <!-- 批量删除院系 --> 
+    <delete id="delete">
+    delete from dept where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>
