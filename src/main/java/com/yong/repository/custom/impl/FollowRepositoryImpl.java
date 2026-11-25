@@ -1,6 +1,5 @@
 package com.yong.repository.custom.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,8 +13,11 @@ import com.yong.repository.custom.FollowCustomRepository;
 @Repository
 public class FollowRepositoryImpl implements FollowCustomRepository {
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
+
+    FollowRepositoryImpl(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     @Override
     public Follow findByFollowerIdAndFolloweeId(String followerId, String followeeId) {

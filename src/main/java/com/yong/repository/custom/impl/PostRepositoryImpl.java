@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -28,8 +27,11 @@ import com.yong.repository.custom.PostCustomRepository;
 @Repository
 public class PostRepositoryImpl implements PostCustomRepository {
 
-        @Autowired
-        private MongoTemplate mongoTemplate;
+        private final MongoTemplate mongoTemplate;
+
+        PostRepositoryImpl(MongoTemplate mongoTemplate) {
+                this.mongoTemplate = mongoTemplate;
+        }
 
         @Override
         public List<Post> findSquarePostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId) {

@@ -8,7 +8,6 @@ import java.util.Objects;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.yong.pojo.Follow;
 import com.yong.pojo.User;
@@ -135,12 +134,6 @@ public class UserServiceImpl implements UserService {
         if (userId.equals(targetUserId)) {
             throw new RuntimeException("不能关注自己");
         }
-
-        // 2. 查询目标用户是否存在（顺便查出双方信息用于生成快照）
-        User fromUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("当前用户不存在"));
-        User toUser = userRepository.findById(targetUserId)
-                .orElseThrow(() -> new RuntimeException("目标用户不存在"));
 
         // 3. 查询当前关注关系
         Follow existingFollow = followRepository.findByFollowerIdAndFolloweeId(userId, targetUserId);

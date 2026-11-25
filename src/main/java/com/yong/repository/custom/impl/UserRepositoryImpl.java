@@ -1,6 +1,5 @@
 package com.yong.repository.custom.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,8 +13,11 @@ import com.yong.repository.custom.UserCustomRepository;
 @Repository
 public class UserRepositoryImpl implements UserCustomRepository {
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
+
+    UserRepositoryImpl(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     // 根据id更新用户信息
     @Override
