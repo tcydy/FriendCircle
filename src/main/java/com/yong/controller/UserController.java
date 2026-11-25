@@ -63,11 +63,12 @@ public class UserController {
 
     // 修改密码
     @PostMapping("/password")
-    public Result updatePassword(@RequestBody User user) {
+    public Result updatePassword(@RequestBody User user,@RequestHeader("Authorization") String token) {
+
         if (StrUtil.isEmpty(user.getPassword()) || StrUtil.isBlank(user.getNewPassword())) {
             return Result.error("旧密码不正确或输入为空");
         }
-        if (!userService.updatePassword(user)) {
+        if (!userService.updatePassword(user,token)) {
             return Result.error("旧密码不正确或输入为空");
         }
         return Result.success();
@@ -97,20 +98,20 @@ public class UserController {
 
     // 更新位置（传入用户id，经度、纬度）
     @PutMapping("/location")
-    public Result updateLocationById(@PathVariable String id,
+    public Result updateLocationById(@RequestHeader("Authorization") String token,
             @RequestParam Double longitude,
             @RequestParam Double latitude) {
-        userService.updateLocationById(id, longitude, latitude);
+        userService.updateLocationById(token, longitude, latitude);
         return Result.success();
     }
 
-    // 关注/取关
+    // 关注/取关(0=follow/1=unfollow)
     @PostMapping("/follow/{targetUserId}")
     public Result follow(@RequestBody Integer action,
             @RequestHeader("Authorization") String token,
             @PathVariable String targetUserId) {
-        userService.selectFollow(token, targetUserId, action);
-        return Result.success();
+        Boolean isFollow = userService.selectFollow(token, targetUserId, action);
+        return Result.success(isFollow);
     }
 
 }

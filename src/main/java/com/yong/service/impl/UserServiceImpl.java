@@ -73,9 +73,9 @@ public class UserServiceImpl implements UserService {
 
     // 修改用户密码 成功：true，失败：false
     @Override
-    public boolean updatePassword(User user) {
+    public boolean updatePassword(User user,String token) {
         // 只修改Token里的用户
-        Map<String, Object> claims = JwtUtils.parseToken(user.getToken());
+        Map<String, Object> claims = JwtUtils.parseToken(token);
         List<User> list = userRepository.findByUsername((String) claims.get("username"));
         // 用户名不存在
         if (list == null || list.isEmpty()) {
@@ -104,6 +104,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getInfo(String id) {
         User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setPassword(null);
+        }
         return user;
     }
 
@@ -115,8 +118,10 @@ public class UserServiceImpl implements UserService {
 
     // 根据id修改经纬度
     @Override
-    public void updateLocationById(String id, Double longitude, Double latitude) {
-        userRepository.updateLocationById(id, longitude, latitude);
+    public void updateLocationById(String token, Double longitude, Double latitude) {
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        String userId = (String) claims.get("id");
+        userRepository.updateLocationById(userId, longitude, latitude);
     }
 
     //查找用户名是否重复

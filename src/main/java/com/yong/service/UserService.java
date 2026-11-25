@@ -11,14 +11,14 @@ public interface UserService {
     void save(User sysuser) throws Exception;
 
     // 修改用户密码
-    boolean updatePassword(User user);
+    boolean updatePassword(User user, String token);
 
     // 修改用户信息
     User getInfo(String id);
 
     void updateProfileById(User user);
 
-    void updateLocationById(String id, Double longitude, Double latitude);
+    void updateLocationById(String token, Double longitude, Double latitude);
 
     //判断用户名是否重复
     boolean isUsernameExist(String username);

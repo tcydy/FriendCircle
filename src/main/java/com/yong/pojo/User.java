@@ -40,7 +40,6 @@ public class User {
      * 密码
      * 加 @JsonIgnore 防止查询用户信息时把密码哈希返回给前端
      */
-    @JsonIgnore
     private String password;
     private String nickname;//昵称
     private String avatar;//头像 URL

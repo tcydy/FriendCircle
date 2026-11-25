@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "FriendCircleManagementApplication",
+            "request": "launch",
+            "mainClass": "com.yong.FriendCircleManagementApplication",
+            "projectName": "talias-web-management"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-TaliasWebManagementApplication<talias-web-management>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

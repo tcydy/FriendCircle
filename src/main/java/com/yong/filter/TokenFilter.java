@@ -52,6 +52,7 @@ public class TokenFilter implements Filter {
             JwtUtils.parseToken(token);
         } catch (Exception e) {
             log.info("令牌非法，响应401");
+            log.info("{}",token);
             response.setStatus(401);
             write401(response, "令牌非法或已过期，请重新登录");
             return;
