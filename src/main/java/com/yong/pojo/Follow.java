@@ -29,9 +29,4 @@ public class Follow {
 
     private LocalDateTime createdAt;//关注时间
 
-    //快照
-    private String followerNickName;//冗余：关注者昵称
-    private String followerAvatar;//冗余：关注者头像
-    private String followeeNickName;//冗余：关注者昵称
-    private String followeeAvatar;//冗余：被关注者头像
 }

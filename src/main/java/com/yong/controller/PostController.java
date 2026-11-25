@@ -89,8 +89,8 @@ public class PostController {
     public Result search(
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) LocalDateTime lastCreatedAt,
-            @RequestHeader("Authorization") String token,
-            @RequestParam("keyword") String keyword) {
+            @RequestParam String keyword,
+            @RequestHeader("Authorization") String token) {
 
         if (!StringUtils.hasText(keyword)) {
             return Result.success(Collections.emptyList());
@@ -101,7 +101,8 @@ public class PostController {
 
     // 点赞/取消点赞
     @PostMapping("/{postId}/like")
-    public Result like(@PathVariable String postId, @RequestHeader("Authorization") String token,
+    public Result like(@PathVariable String postId,
+            @RequestHeader("Authorization") String token,
             @RequestBody Integer action) {
         LikeResult likeResult = postService.like(postId, token, action);
         return Result.success(likeResult);
@@ -109,7 +110,8 @@ public class PostController {
 
     // 帖子详情
     @GetMapping("/{id}")
-    public Result showDetails(@RequestHeader("Authorization") String token, @PathVariable String id) {
+    public Result showDetails(@RequestHeader("Authorization") String token,
+            @PathVariable String id) {
         Post post = postService.showDetails(token, id);
         if (post == null) {
             return Result.error("没有访问权限！");
@@ -128,7 +130,7 @@ public class PostController {
     }
 
     // 添加评论
-    @PostMapping("/{postId}/comment")
+    @PostMapping("/{id}/comment")
     public Result addComment(@RequestHeader("Authorization") String token,
             @PathVariable String id,
             @RequestBody String content) {
@@ -138,12 +140,13 @@ public class PostController {
         }
         return Result.success(comment);
     }
-    
-    //删除评论
-    @DeleteMapping("/{postId}/comment/{commentId}")
+
+    // 删除评论
+    @DeleteMapping("/{id}/comment/{commentId}")
     public Result deleteComment(@RequestHeader("Authorization") String token,
-            @PathVariable String id,@PathVariable String commentId) {
-        Boolean isSuccess = postService.deleteComment(token, id,commentId);
+            @PathVariable String id,
+            @PathVariable String commentId) {
+        Boolean isSuccess = postService.deleteComment(token, id, commentId);
         if (!isSuccess) {
             return Result.error("没有删除权限！");
         }

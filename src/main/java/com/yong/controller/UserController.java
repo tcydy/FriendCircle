@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yong.pojo.Result;
@@ -16,8 +17,6 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PutMapping;
-
-
 
 @Slf4j
 @RequestMapping("/users")
@@ -74,13 +73,13 @@ public class UserController {
         return Result.success();
     }
 
-    //检查token
+    // 检查token
     @GetMapping("/checkToken")
     public Result checkToken() {
         return Result.success();
     }
 
-    //获取用户信息
+    // 获取用户信息
     @GetMapping("/{id}")
     public Result getInfo(@PathVariable String id) {
         log.info("根据id查询用户信息：{}", id);
@@ -88,7 +87,7 @@ public class UserController {
         return Result.success(user);
     }
 
-    //编辑资料
+    // 编辑资料
     @PutMapping("/profile")
     public Result update(@RequestBody User user) {
         log.info("根据id修改用户信息：{}", user);
@@ -96,21 +95,22 @@ public class UserController {
         return Result.success();
     }
 
-    //更新位置（传入用户id，经度、纬度）
+    // 更新位置（传入用户id，经度、纬度）
     @PutMapping("/location")
-    public Result updateLocationById(@PathVariable String id, @RequestBody Double longitude,
-            @RequestBody Double latitude) {
+    public Result updateLocationById(@PathVariable String id,
+            @RequestParam Double longitude,
+            @RequestParam Double latitude) {
         userService.updateLocationById(id, longitude, latitude);
         return Result.success();
     }
-    
-    //关注/取关
+
+    // 关注/取关
     @PostMapping("/follow/{targetUserId}")
-    public Result follow(@RequestBody Integer action,@RequestHeader String token,@PathVariable String targetUserId) {
+    public Result follow(@RequestBody Integer action,
+            @RequestHeader("Authorization") String token,
+            @PathVariable String targetUserId) {
         userService.selectFollow(token, targetUserId, action);
         return Result.success();
     }
-    
-
 
 }

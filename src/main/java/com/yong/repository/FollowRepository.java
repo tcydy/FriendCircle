@@ -5,7 +5,7 @@ package com.yong.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.yong.pojo.Follow;
-
+import com.yong.pojo.User;
 import com.yong.repository.custom.FollowCustomRepository;
 
 //用户
@@ -16,6 +16,8 @@ public interface FollowRepository extends MongoRepository<Follow, String>, Follo
     public void saveNoReturn(Follow follow);
 
     public void delete(Follow follow);
+
+    public void updateProfileById(User user);
 
 
     

@@ -16,17 +16,4 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class FollowServiceImpl implements FollowService {
 
-    
-
-    private final UserRepository userRepository;
-    private final FollowRepository followRepository;
-
-    FollowServiceImpl(UserRepository userRepository,FollowRepository followRepository) {
-        this.userRepository = userRepository;
-        this.followRepository = followRepository;
-    }
-
-
-    
-
 }

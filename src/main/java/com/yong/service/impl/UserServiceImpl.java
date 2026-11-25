@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yong.pojo.Follow;
 import com.yong.pojo.User;
@@ -153,10 +154,6 @@ public class UserServiceImpl implements UserService {
             Follow newFollow = Follow.builder()
                     .followerId(userId)
                     .followeeId(targetUserId)
-                    .followerNickName(fromUser.getNickname())
-                    .followerAvatar(fromUser.getAvatar())
-                    .followeeNickName(toUser.getNickname())
-                    .followeeAvatar(toUser.getAvatar())
                     .createdAt(LocalDateTime.now())
                     .build();
 
