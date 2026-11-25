@@ -29,7 +29,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
 
-    PostServiceImpl(PostRepository postRepository, UserRepository userRepository,FollowRepository followRepository) {
+    PostServiceImpl(PostRepository postRepository, UserRepository userRepository, FollowRepository followRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.followRepository = followRepository;
@@ -70,6 +70,7 @@ public class PostServiceImpl implements PostService {
         return postRepository.findFollowingPostByCursor(size, lastCreatedAt, (String) claims.get("id"));
     }
 
+    // 分页的附近帖子列表(返回的Post里只有id,authorId,authorInfo,title,content,images,location,likesNum,status)
     @Override
     public List<Post> nearbyPostList(Integer size, LocalDateTime lastCreatedAt, String token, Double distance) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
@@ -87,6 +88,7 @@ public class PostServiceImpl implements PostService {
                 user.getLocation().getX(), user.getLocation().getY());
     }
 
+    // 搜索帖子名称
     @Override
     public List<Post> search(Integer size, LocalDateTime lastCreatedAt, String token, String keyword) {
         Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
@@ -94,54 +96,59 @@ public class PostServiceImpl implements PostService {
         String safeKeyword = Pattern.quote(keyword);
 
         Map<String, Object> claims = JwtUtils.parseToken(token);
-        String userId = (String)claims.get("id");
+        String userId = (String) claims.get("id");
 
-        return postRepository.search(safeSize, lastCreatedAt,userId ,safeKeyword );
+        return postRepository.search(safeSize, lastCreatedAt, userId, safeKeyword);
     }
 
+    // 点赞/取消点赞
     @Override
     public LikeResult like(String postId, String token, Integer action) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
         String userId = (String) claims.get("id");
         LikeResult likeResult = postRepository.like(postId, userId, action);
         return likeResult;
-        
+
     }
 
+    // 帖子详情
     @Override
     public Post showDetails(String token, String id) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
         String userId = (String) claims.get("id");
 
         Post post = postRepository.findById(id).orElse(null);
-        if(post==null)return null;
-        //公开可见
+        if (post == null)
+            return null;
+        // 公开可见
         if (post.getStatus() == 0) {
             return post;
         }
-        //仅粉见
+        // 仅粉见
         else if (post.getStatus() == 2) {
             Follow follow = followRepository.findByFollowerIdAndFolloweeId(userId, post.getAuthorId());
-            //用户已关注该帖主
+            // 用户已关注该帖主
             if (follow != null) {
                 return post;
             }
         }
-        //私密且是自己的帖子
+        // 私密且是自己的帖子
         else if (post.getStatus() == 1 && Objects.equals(post.getAuthorId(), userId)) {
             return post;
         }
         return null;
     }
 
+    // 个人主页帖子列表
     @Override
     public List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
         String userId = (String) claims.get("id");
         Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
-        return postRepository.findMyPostByCursor(safeSize, lastCreatedAt,userId);
+        return postRepository.findMyPostByCursor(safeSize, lastCreatedAt, userId);
     }
 
+    // 添加评论
     @Override
     public Post.PostComment addComment(String token, String id, String content) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
@@ -168,6 +175,7 @@ public class PostServiceImpl implements PostService {
         return comment;
     }
 
+    // 删除评论
     @Override
     public Boolean deleteComment(String token, String id, String commentId) {
         Map<String, Object> claims = JwtUtils.parseToken(token);

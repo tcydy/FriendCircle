@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//用户
+//帖子
 @Data
 @Builder
 @NoArgsConstructor

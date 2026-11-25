@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+//点赞状态
 @Data
 @AllArgsConstructor
 @NoArgsConstructor 

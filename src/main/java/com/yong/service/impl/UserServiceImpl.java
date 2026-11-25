@@ -119,6 +119,7 @@ public class UserServiceImpl implements UserService {
         userRepository.updateLocationById(id, longitude, latitude);
     }
 
+    //查找用户名是否重复
     @Override
     public boolean isUsernameExist(String username) {
         return userRepository.isUsernameExist(username);
