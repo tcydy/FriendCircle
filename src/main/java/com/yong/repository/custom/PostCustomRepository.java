@@ -19,7 +19,7 @@ public interface PostCustomRepository {
 
     public LikeResult like(String postId, String userId, Integer action);
 
-    public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt, String userId);
+    public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt,String myId, String userId);
 
     public boolean addComment(String id, PostComment comment);
 

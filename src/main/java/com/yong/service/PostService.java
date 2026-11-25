@@ -32,8 +32,8 @@ public interface PostService {
     // 帖子详情
     Post showDetails(String token, String id);
 
-    // 个人主页帖子列表
-    List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token);
+    // 个人（别人）主页帖子列表
+    List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token,String userId);
 
     // 添加评论
     Post.PostComment addComment(String token, String id, String content);

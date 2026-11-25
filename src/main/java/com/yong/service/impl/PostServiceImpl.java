@@ -139,13 +139,13 @@ public class PostServiceImpl implements PostService {
         return null;
     }
 
-    // 个人主页帖子列表
+    // 个人（别人）主页帖子列表
     @Override
-    public List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token) {
+    public List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token,String userId) {
         Map<String, Object> claims = JwtUtils.parseToken(token);
-        String userId = (String) claims.get("id");
+        String myId = (String) claims.get("id");
         Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
-        return postRepository.findMyPostByCursor(safeSize, lastCreatedAt, userId);
+        return postRepository.findMyPostByCursor(safeSize, lastCreatedAt, myId,userId);
     }
 
     // 添加评论

@@ -119,13 +119,14 @@ public class PostController {
         return Result.success(post);
     }
 
-    // 个人主页帖子列表
-    @GetMapping("/myPost")
+    // 个人（别人）主页帖子列表
+    @GetMapping("/myPost/{userId}")
     public Result myPost(
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) LocalDateTime lastCreatedAt,
-            @RequestHeader("Authorization") String token) {
-        List<Post> rows = postService.myPostList(size, lastCreatedAt, token);
+            @RequestHeader("Authorization") String token,
+            @PathVariable String userId) {
+        List<Post> rows = postService.myPostList(size, lastCreatedAt, token,userId);
         return Result.success(rows);
     }
 

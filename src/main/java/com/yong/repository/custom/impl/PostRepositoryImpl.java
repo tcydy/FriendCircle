@@ -3,6 +3,7 @@ package com.yong.repository.custom.impl;
 import java.time.LocalDateTime;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Point;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 
 import com.mongodb.client.result.UpdateResult;
+import com.yong.pojo.Follow;
 import com.yong.pojo.LikeResult;
 import com.yong.pojo.Post;
 import com.yong.pojo.Post.PostComment;
@@ -363,27 +365,44 @@ public class PostRepositoryImpl implements PostCustomRepository {
         }
 
         @Override
-        public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt, String userId) {
+        public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt, String myId, String userId) {
+                // 0. 分页参数兜底，Aggregation.limit(null) 会 NPE
+                int limit = (size == null || size <= 0) ? 10 : Math.min(size, 50);
+
+                // 1. 公共过滤：作者 + 时间游标
                 Criteria matchCriteria = Criteria.where("authorId").is(userId);
                 if (lastCreatedAt != null) {
                         matchCriteria.and("createdAt").lt(lastCreatedAt);
                 }
 
+                // 2. 可见性：自己看自己 → 不过滤；看别人 → 公开 + (粉丝可见)
+                if (!Objects.equals(myId, userId)) {
+                        // 单向判断：访问者 myId 是否关注了作者 userId
+                        boolean followed = mongoTemplate.exists(
+                                        Query.query(Criteria.where("followerId").is(myId)
+                                                        .and("followeeId").is(userId)),
+                                        Follow.class);
+
+                        if (followed) {
+                                matchCriteria.and("status").in(0, 2); // 公布 + 仅粉丝可见
+                        } else {
+                                matchCriteria.and("status").is(0); // 只剩公布，私密和仅粉丝可见都被过滤
+                        }
+                }
+
+                // 3. 管道
                 Aggregation agg = Aggregation.newAggregation(
-                                // 1. 基础过滤
                                 Aggregation.match(matchCriteria),
 
-                                // 2. 投影
                                 Aggregation.project()
-                                                .andInclude("id", "authorId", "authorInfo", "title", "content",
-                                                                "images", "location",
-                                                                "likesNum", "status", "createdAt"),
+                                                .andInclude("_id", "authorId", "authorInfo", "title", "content",
+                                                                "images", "location", "likesNum", "likes", "status",
+                                                                "createdAt"),
 
-                                // 3. 按发布时间倒序
-                                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                                // _id 作为第二排序键，避免同毫秒发布时顺序抖动
+                                Aggregation.sort(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("_id"))),
 
-                                // 4. 限制条数
-                                Aggregation.limit(size));
+                                Aggregation.limit(limit));
 
                 AggregationResults<Post> result = mongoTemplate.aggregate(agg, "post", Post.class);
                 return result.getMappedResults();

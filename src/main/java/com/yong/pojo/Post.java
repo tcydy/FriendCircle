@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "post")
+// 建立复合索引：支撑“广场动态”、“关注动态”的游标分页
+@CompoundIndexes({
+    // 场景1：查公开的帖子，按时间倒序游标分页 (status 等值 -> createdAt 排序)
+    @CompoundIndex(name = "idx_status_created", def = "{'status': 1, 'createdAt': -1}"),
+    
+    // 场景2：查某个人的主页，按时间倒序游标分页 (authorId 等值 -> status 等值 -> createdAt 排序)
+    @CompoundIndex(name = "idx_author_status_created", def = "{'authorId': 1, 'status': 1, 'createdAt': -1}")
+})
+
 public class Post {
 
     @Id
