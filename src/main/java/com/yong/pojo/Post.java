@@ -60,7 +60,7 @@ public class Post {
         private String nickname;//冗余：评论者昵称
         private String avatar;//冗余：评论者头像
         private String content;//评论内容
-        private String status;//评论状态：0=公布,1=私密
+        private Integer status;//评论状态：0=公布,1=私密
         private LocalDateTime createdAt;//评论时间
     }
 }

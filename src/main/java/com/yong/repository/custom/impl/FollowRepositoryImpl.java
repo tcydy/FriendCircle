@@ -1,5 +1,6 @@
 package com.yong.repository.custom.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -11,18 +12,27 @@ import com.yong.repository.custom.FollowCustomRepository;
 @Repository
 public class FollowRepositoryImpl implements FollowCustomRepository {
 
+    @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Follow findByFollowerIdAndFolloweeId(String followerId,String followeeId) {
+    @Override
+    public Follow findByFollowerIdAndFolloweeId(String followerId, String followeeId) {
         Query query = Query.query(
                 Criteria.where("followerId").is(followerId)
-                        .and("followeeId").is(followeeId)
-        );
+                        .and("followeeId").is(followeeId));
 
         // 执行查询：查找匹配的第一条记录
         return mongoTemplate.findOne(query, Follow.class);
     }
 
+    @Override
+    public void saveNoReturn(Follow follow) {
+        mongoTemplate.save(follow);
+    }
 
+    @Override
+    public void delete(Follow follow) {
+        mongoTemplate.remove(follow);
+    }
 
 }

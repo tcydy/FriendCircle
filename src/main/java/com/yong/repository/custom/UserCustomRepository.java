@@ -10,6 +10,8 @@ public interface UserCustomRepository {
 
     void updateLocationById(String id, Double longitude, Double latitude);
 
+    boolean isUsernameExist(String username);
 
+    void updateStats(String userId, int followingDelta, int followerDelta);
 
 }

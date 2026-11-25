@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.yong.pojo.User;
 import com.yong.pojo.Follow;
+import com.yong.pojo.User;
 
+import com.yong.repository.FollowRepository;
 import com.yong.repository.UserRepository;
-import com.yong.pojo.PageResult;
 
 import com.yong.service.UserService;
 import com.yong.utils.JwtUtils;
-
 
 import cn.hutool.crypto.digest.BCrypt;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +28,10 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
 
-    UserServiceImpl(UserRepository userRepository,FollowRepository followRepository) {
+    UserServiceImpl(UserRepository userRepository, FollowRepository followRepository) {
         this.userRepository = userRepository;
         this.followRepository = followRepository;
     }
-
 
     // 登录
     @Override
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService {
         // 3.如果失败，返回空
         return null;
     }
-    
+
     // 新增用户
     @Override
     public void save(User user) throws Exception {
@@ -78,14 +77,14 @@ public class UserServiceImpl implements UserService {
         // 只修改Token里的用户
         Map<String, Object> claims = JwtUtils.parseToken(user.getToken());
         List<User> list = userRepository.findByUsername((String) claims.get("username"));
-        //用户名不存在
+        // 用户名不存在
         if (list == null || list.isEmpty()) {
             return false;
         }
 
         User user2 = list.get(0);
         // token的信息对不上
-        if (!Objects.equals(user2.getId(),claims.get("id")) || !Objects.equals(claims.get("id"),user.getId()))
+        if (!Objects.equals(user2.getId(), claims.get("id")) || !Objects.equals(claims.get("id"), user.getId()))
             return false;
 
         // 校验密码：明文 vs 数据库密文
@@ -93,7 +92,7 @@ public class UserServiceImpl implements UserService {
         if (!match)
             return false;
 
-        //更新密码
+        // 更新密码
         String rawPassword = user.getNewPassword();// 加密：gensalt() 生成随机盐，hashpw 返回 60 位密文
         String encrypted = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
         user.setPassword(encrypted);
@@ -116,31 +115,83 @@ public class UserServiceImpl implements UserService {
 
     // 根据id修改经纬度
     @Override
-    public void updateLocationById(String id, Double longitude, Double latitude){
-        userRepository.updateLocationById(id,longitude,latitude);
+    public void updateLocationById(String id, Double longitude, Double latitude) {
+        userRepository.updateLocationById(id, longitude, latitude);
     }
 
-    //关注/取关
     @Override
-    public void follow(String userId, String targetUserId, Integer action) {
-        //关注
-        if (action == 0) {
-            User from = userRepository.findById(userId).orElse(null);
-            User to = userRepository.findById(targetUserId).orElse(null);
-            Follow follow = new Follow()
-                    .setFollowerId(userId)
-                    .setFolloweeId(targetUserId)
-                    .setFollowerNickName(from.getNickname())
-                    .setFolloweeNickName(to.getNickname())
-                    .setFollowerAvatar(from.getAvatar())
-                    .setFolloweeAvatar(to.getAvatar())
-                    .setCreatedAt(LocalDateTime.now());
-            followRepository.save(follow);
-        }
-        //取关
-        if (action == 1) {
-            followRepository.deleteByFollowerIdAndFolloweeId(userId,targetUserId);
-        }
+    public boolean isUsernameExist(String username) {
+        return userRepository.isUsernameExist(username);
     }
+
+    // 关注/取关
+    @Override
+    public Boolean selectFollow(String token, String targetUserId, Integer action) {
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        String userId = (String) claims.get("id");
+
+        // 1. 基础校验：不能关注自己
+        if (userId.equals(targetUserId)) {
+            throw new RuntimeException("不能关注自己");
+        }
+
+        // 2. 查询目标用户是否存在（顺便查出双方信息用于生成快照）
+        User fromUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("当前用户不存在"));
+        User toUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("目标用户不存在"));
+
+        // 3. 查询当前关注关系
+        Follow existingFollow = followRepository.findByFollowerIdAndFolloweeId(userId, targetUserId);
+
+        if (action == 0) { // ================== 关注逻辑 ==================
+            if (existingFollow != null) {
+                return true; // 已经关注过了，直接返回 true（保证接口幂等性）
+            }
+
+            // 组装关注关系文档并保存
+            Follow newFollow = Follow.builder()
+                    .followerId(userId)
+                    .followeeId(targetUserId)
+                    .followerNickName(fromUser.getNickname())
+                    .followerAvatar(fromUser.getAvatar())
+                    .followeeNickName(toUser.getNickname())
+                    .followeeAvatar(toUser.getAvatar())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            try {
+                followRepository.save(newFollow);
+            } catch (DuplicateKeyException e) {
+                // 防并发兜底：两个请求同时查不到，同时插入，数据库唯一索引会拦截第二个
+                return true;
+            }
+
+            // 更新双方统计数（原子操作）
+            userRepository.updateStats(userId, 1, 0); // 当前用户关注数 +1
+            userRepository.updateStats(targetUserId, 0, 1); // 目标用户粉丝数 +1
+
+            return true;
+
+        } else if (action == 1) { // ================== 取关逻辑 ==================
+            if (existingFollow == null) {
+                return false; // 本来就没关注，直接返回 false
+            }
+
+            // 删除关注关系
+            followRepository.delete(existingFollow);
+
+            // 更新双方统计数（原子操作）
+            userRepository.updateStats(userId, -1, 0); // 当前用户关注数 -1
+            userRepository.updateStats(targetUserId, 0, -1); // 目标用户粉丝数 -1
+
+            return false;
+        }
+
+        throw new RuntimeException("非法的 action 参数");
+
+    }
+
+
 
 }

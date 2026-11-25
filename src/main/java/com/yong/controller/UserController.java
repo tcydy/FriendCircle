@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,7 +50,7 @@ public class UserController {
             return Result.error("用户名或密码不能为空");
         }
         // 判断用户名是否存在
-        if (!userService.isUsernameExist(user)) {
+        if (!userService.isUsernameExist(user.getUsername())) {
             try {
                 userService.save(user);
                 return Result.success();
@@ -104,9 +105,9 @@ public class UserController {
     }
     
     //关注/取关
-    @PostMapping("/follow")
-    public Result follow(@RequestBody String userId,String targetUserId,Integer action) {
-        userService.follow(userId, targetUserId, action);
+    @PostMapping("/follow/{targetUserId}")
+    public Result follow(@RequestBody Integer action,@RequestHeader String token,@PathVariable String targetUserId) {
+        userService.selectFollow(token, targetUserId, action);
         return Result.success();
     }
     

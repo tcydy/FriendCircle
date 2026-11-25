@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -97,16 +98,16 @@ public class PostController {
         List<Post> rows = postService.search(size, lastCreatedAt, token, keyword);
         return Result.success(rows);
     }
-    
-    //点赞/取消点赞
+
+    // 点赞/取消点赞
     @PostMapping("/{postId}/like")
     public Result like(@PathVariable String postId, @RequestHeader("Authorization") String token,
             @RequestBody Integer action) {
         LikeResult likeResult = postService.like(postId, token, action);
         return Result.success(likeResult);
     }
-    
-    //帖子详情
+
+    // 帖子详情
     @GetMapping("/{id}")
     public Result showDetails(@RequestHeader("Authorization") String token, @PathVariable String id) {
         Post post = postService.showDetails(token, id);
@@ -115,8 +116,8 @@ public class PostController {
         }
         return Result.success(post);
     }
-    
-    //个人主页帖子列表
+
+    // 个人主页帖子列表
     @GetMapping("/myPost")
     public Result myPost(
             @RequestParam(defaultValue = "10") Integer size,
@@ -124,6 +125,29 @@ public class PostController {
             @RequestHeader("Authorization") String token) {
         List<Post> rows = postService.myPostList(size, lastCreatedAt, token);
         return Result.success(rows);
+    }
+
+    // 添加评论
+    @PostMapping("/{postId}/comment")
+    public Result addComment(@RequestHeader("Authorization") String token,
+            @PathVariable String id,
+            @RequestBody String content) {
+        Post.PostComment comment = postService.addComment(token, id, content);
+        if (comment == null) {
+            return Result.error("用户或帖子不存在！");
+        }
+        return Result.success(comment);
+    }
+    
+    //删除评论
+    @DeleteMapping("/{postId}/comment/{commentId}")
+    public Result deleteComment(@RequestHeader("Authorization") String token,
+            @PathVariable String id,@PathVariable String commentId) {
+        Boolean isSuccess = postService.deleteComment(token, id,commentId);
+        if (!isSuccess) {
+            return Result.error("没有删除权限！");
+        }
+        return Result.success();
     }
 
 }

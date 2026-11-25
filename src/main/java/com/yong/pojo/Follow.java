@@ -1,23 +1,22 @@
 package com.yong.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.LocalDateTime;
 
-//用户
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Data;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 @Data
-@Builder
+@Builder 
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "follow")
-public class Follow{
-
+public class Follow {
     /**
      * 主键 ID (对应 _id)
      * Spring Data MongoDB 会自动将 ObjectId 转换为 String，方便前端传参
@@ -35,5 +34,4 @@ public class Follow{
     private String followerAvatar;//冗余：关注者头像
     private String followeeNickName;//冗余：关注者昵称
     private String followeeAvatar;//冗余：被关注者头像
-
 }

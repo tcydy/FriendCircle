@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
@@ -139,6 +140,39 @@ public class PostServiceImpl implements PostService {
         String userId = (String) claims.get("id");
         Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
         return postRepository.findMyPostByCursor(safeSize, lastCreatedAt,userId);
+    }
+
+    @Override
+    public Post.PostComment addComment(String token, String id, String content) {
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        String userId = (String) claims.get("id");
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null)
+            return null;
+        Post.PostComment comment = new Post.PostComment();
+        comment.setId(UUID.randomUUID().toString());
+        comment.setUserId(userId);
+        comment.setNickname(user.getNickname());
+        comment.setAvatar(user.getAvatar());
+        comment.setContent(content);
+        comment.setStatus(0);
+        comment.setCreatedAt(LocalDateTime.now());
+
+        boolean isSuccess = postRepository.addComment(id, comment);
+
+        if (!isSuccess) {
+            throw new RuntimeException("帖子不存在或评论失败");
+        }
+
+        // 直接返回组装好的对象给前端
+        return comment;
+    }
+
+    @Override
+    public Boolean deleteComment(String token, String id, String commentId) {
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        String userId = (String) claims.get("id");
+        return postRepository.deleteComment(userId, id, commentId);
     }
 
 }

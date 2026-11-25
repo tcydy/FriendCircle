@@ -29,6 +29,10 @@ public interface PostService {
     Post showDetails(String token, String id);
 
     List<Post> myPostList(Integer size, LocalDateTime lastCreatedAt, String token);
+
+    public Post.PostComment addComment(String token, String id, String content);
+
+    Boolean deleteComment(String token, String id, String commentId);
     
 
 

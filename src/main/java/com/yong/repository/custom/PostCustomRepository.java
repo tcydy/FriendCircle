@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.yong.pojo.LikeResult;
 import com.yong.pojo.Post;
+import com.yong.pojo.Post.PostComment;
 
 public interface PostCustomRepository {
     public List<Post> findSquarePostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId);
@@ -19,4 +20,8 @@ public interface PostCustomRepository {
     public LikeResult like(String postId, String userId, Integer action);
 
     public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt, String userId);
+
+    public boolean addComment(String id, PostComment comment);
+
+    public Boolean deleteComment(String userId, String id, String commentId);
 }

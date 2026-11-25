@@ -13,5 +13,10 @@ public interface FollowRepository extends MongoRepository<Follow, String>, Follo
 
     public Follow findByFollowerIdAndFolloweeId(String followerId,String followeeId);
 
+    public void saveNoReturn(Follow follow);
+
+    public void delete(Follow follow);
+
+
     
 }

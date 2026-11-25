@@ -1,5 +1,6 @@
 package com.yong.repository.custom.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,6 +14,7 @@ import com.yong.repository.custom.UserCustomRepository;
 @Repository
 public class UserRepositoryImpl implements UserCustomRepository {
 
+    @Autowired
     private MongoTemplate mongoTemplate;
 
     // 根据id更新用户信息
@@ -30,7 +32,7 @@ public class UserRepositoryImpl implements UserCustomRepository {
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
-    //根据id更新密码
+    // 根据id更新密码
     @Override
     public void updatePasswordById(User user) {
         // 条件
@@ -44,7 +46,8 @@ public class UserRepositoryImpl implements UserCustomRepository {
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
-    //根据id更新位置
+    // 根据id更新位置
+    @Override
     public void updateLocationById(String id, Double longitude, Double latitude) {
         GeoJsonPoint location = new GeoJsonPoint(longitude, latitude);
 
@@ -59,5 +62,29 @@ public class UserRepositoryImpl implements UserCustomRepository {
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
+    @Override
+    public boolean isUsernameExist(String username) {
+        // 1. 构建查询条件：username 等于传入的值
+        Query query = Query.query(Criteria.where("username").is(username));
+
+        // 2. 调用 exists 方法直接判断是否存在
+        return mongoTemplate.exists(query, User.class);
+    }
+
+    // 更新统计数据（使用 $inc 保证原子性）
+    @Override
+    public void updateStats(String userId, int followingDelta, int followerDelta) {
+        Query query = Query.query(Criteria.where("id").is(userId));
+
+        Update update = new Update();
+        if (followingDelta != 0) {
+            update.inc("stats.followingCount", followingDelta);
+        }
+        if (followerDelta != 0) {
+            update.inc("stats.followerCount", followerDelta);
+        }
+
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
 
 }

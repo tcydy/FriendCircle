@@ -10,15 +10,16 @@ import com.yong.repository.custom.UserCustomRepository;
 //用户
 public interface UserRepository extends MongoRepository<User, String>, UserCustomRepository {
 
-    List<User> findByUsername(String username);
+    public List<User> findByUsername(String username);
 
-    void updateProfileById(User user);
+    public void updateProfileById(User user);
 
-    void updatePasswordById(User user);
+    public void updatePasswordById(User user);
 
-    void updateLocationById(String id, Double longitude, Double latitude);
+    public void updateLocationById(String id, Double longitude, Double latitude);
 
+    public boolean isUsernameExist(String username);
 
+    public void updateStats(String userId, int followingDelta, int followerDelta);
 
-    
 }

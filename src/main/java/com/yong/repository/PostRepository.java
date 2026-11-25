@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.yong.pojo.LikeResult;
 import com.yong.pojo.Post;
-
+import com.yong.pojo.Post.PostComment;
 import com.yong.repository.custom.PostCustomRepository;
 
 //用户
@@ -25,4 +25,8 @@ public interface PostRepository extends MongoRepository<Post, String>, PostCusto
     public LikeResult like(String postId, String userId, Integer action);
 
     public List<Post> findMyPostByCursor(Integer size, LocalDateTime lastCreatedAt, String userId);
+
+    public boolean addComment(String id, PostComment comment);
+
+    public Boolean deleteComment(String userId, String id, String commentId);
 }
