@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -37,10 +38,21 @@ public class PostController {
 
     // 发布动态
     @PostMapping
-    public Result insert(@RequestBody Post post,@RequestHeader("Authorization") String token) {
+    public Result insert(@RequestBody Post post, @RequestHeader("Authorization") String token) {
         log.info("发布动态：{}", post);
-        String postId = postService.insert(post,token);
+        String postId = postService.insert(post, token);
         return Result.success(postId);
+    }
+
+    // 更新帖子位置（传入帖子id，经度、纬度）
+    @PutMapping("/location")
+    public Result updateLocationById(
+            @RequestParam String postId,
+            @RequestParam(defaultValue = "") String locationName,
+            @RequestParam Double longitude,
+            @RequestParam Double latitude) {
+        postService.updateLocationById(postId, locationName, longitude, latitude);
+        return Result.success();
     }
 
     // 删除动态
@@ -127,8 +139,8 @@ public class PostController {
             @RequestHeader("Authorization") String token,
             @PathVariable String userId) {
 
-        log.info("userId:{}",userId);
-        List<Post> rows = postService.myPostList(size, lastCreatedAt, token,userId);
+        log.info("userId:{}", userId);
+        List<Post> rows = postService.myPostList(size, lastCreatedAt, token, userId);
         return Result.success(rows);
     }
 

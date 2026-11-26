@@ -8,6 +8,8 @@ import com.yong.pojo.Post;
 import com.yong.pojo.Post.PostComment;
 
 public interface PostCustomRepository {
+
+    public void updateLocationById(String postId, String locationName, Double longitude, Double latitude);
     public List<Post> findSquarePostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId);
 
     public List<Post> findFollowingPostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId);

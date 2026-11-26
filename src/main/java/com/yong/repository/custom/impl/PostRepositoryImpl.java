@@ -10,15 +10,18 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.MongoExpression;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationExpression;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.NearQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.mongodb.core.aggregation.VariableOperators;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.aggregation.BooleanOperators.And;
+import org.springframework.data.mongodb.core.aggregation.BooleanOperators.Or;
+import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq;
+import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Gt;
 
 import com.mongodb.client.result.UpdateResult;
 import com.yong.pojo.Follow;
@@ -34,6 +37,22 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
         PostRepositoryImpl(MongoTemplate mongoTemplate) {
                 this.mongoTemplate = mongoTemplate;
+        }
+
+        @Override
+        public void updateLocationById(String postId, String locationName, Double longitude, Double latitude) {
+                GeoJsonPoint geo = new GeoJsonPoint(longitude, latitude);
+                Post.PostLocation postLocation = new Post.PostLocation(locationName, geo);
+
+                // 条件
+                Query query = Query.query(Criteria.where("id").is(postId));
+
+                // 要更新的字段
+                Update update = new Update()
+                                .set("location", postLocation);
+
+                // 执行更新：更新第一条匹配的记录
+                mongoTemplate.updateFirst(query, update, Post.class);
         }
 
         @Override
@@ -177,6 +196,7 @@ public class PostRepositoryImpl implements PostCustomRepository {
         @Override
         public List<Post> findNearbyPostByCursor(Integer size, LocalDateTime lastCreatedAt, double distance,
                         String currentUserId, double x, double y) {
+
                 // 1. 基础过滤条件（排除私密 status=1，以及时间游标）
                 Criteria matchCriteria = Criteria.where("status").ne(1);
                 if (lastCreatedAt != null) {
@@ -185,61 +205,68 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
                 Query query = new Query(matchCriteria);
 
-                // 2. 构建地理空间查询 NearQuery
-                // 注意：MongoDB 中坐标的顺序是 [经度, 纬度]，即 [x, y]
+                // 2. 地理空间查询 NearQuery
+                // 注意：MongoDB 中坐标顺序是 [经度, 纬度]，即 [x, y]
                 Point point = new Point(x, y);
                 NearQuery nearQuery = NearQuery.near(point)
                                 .maxDistance(distance) // 距离范围（米）
                                 .spherical(true) // 球面计算
-                                .query(query); // 将基础过滤条件注入
+                                .query(query); // 注入基础过滤条件
+
+                // 3. can_view 聚合表达式
+                AggregationExpression canViewExpr = BooleanOperators.Or.or(
+                                // status=0 公开
+                                ComparisonOperators.Eq.valueOf("status").equalToValue(0),
+                                // status=2 且 follow_record 长度 > 0（当前用户是粉丝）
+                                BooleanOperators.And.and(
+                                                ComparisonOperators.Eq.valueOf("status").equalToValue(2),
+                                                ComparisonOperators.Gt
+                                                                .valueOf(ArrayOperators.Size
+                                                                                .lengthOfArray("follow_record"))
+                                                                .greaterThanValue(0)),
+                                // 当前用户是作者本人
+                                ComparisonOperators.Eq.valueOf("author_id").equalToValue(currentUserId));
 
                 Aggregation agg = Aggregation.newAggregation(
-                                // 阶段1：$geoNear (必须是管道的第一个阶段)
-                                // "distance" 是自动生成的字段，代表计算出的距离，返回给前端用
+                                // 阶段1：$geoNear（必须是管道的第一个阶段，且 location 需有 2dsphere 索引）
                                 Aggregation.geoNear(nearQuery, "distance"),
 
-                                // 阶段2：关联 follow 集合 (follower_id 限制)
+                                // 阶段2：关联 follow 集合，只保留“当前用户 -> 该作者”的关注记录
                                 Aggregation.lookup()
                                                 .from("follow")
                                                 .let(VariableOperators.Let.just(
                                                                 VariableOperators.Let.ExpressionVariable
-                                                                                .newVariable("author_id")
+                                                                                .newVariable("authorId")
                                                                                 .forField("author_id")))
                                                 .pipeline(
                                                                 Aggregation.match(
-                                                                                new Criteria().andOperator(
-                                                                                                Criteria.where("followee_id")
-                                                                                                                .is("$$author_id"),
-                                                                                                Criteria.where("follower_id")
-                                                                                                                .is(currentUserId))))
+                                                                                Criteria.where("$expr").is(
+                                                                                                BooleanOperators.And
+                                                                                                                .and(
+                                                                                                                                ComparisonOperators.Eq
+                                                                                                                                                .valueOf("followee_id")
+                                                                                                                                                .equalTo("$$authorId"),
+                                                                                                                                ComparisonOperators.Eq
+                                                                                                                                                .valueOf("follower_id")
+                                                                                                                                                .equalToValue(currentUserId)))))
                                                 .as("follow_record"),
 
                                 // 阶段3：计算 can_view 权限
                                 Aggregation.addFields()
                                                 .addField("can_view")
-                                                .withValueOfExpression("""
-                                                                $or: [
-                                                                    {$eq: ["$status", 0]},
-                                                                    {$and: [
-                                                                        {$eq: ["$status", 2]},
-                                                                        {$gt: [{$size: "$follow_record"}, 0]}
-                                                                    ]},
-                                                                    {$eq: ["$author_id", ?0]}
-                                                                ]
-                                                                """, currentUserId)
+                                                .withValue(canViewExpr)
                                                 .build(),
 
-                                // 阶段4：过滤没有权限的帖子
+                                // 阶段4：过滤掉无权限的帖子
                                 Aggregation.match(Criteria.where("can_view").is(true)),
 
                                 // 阶段5：投影
-                                // 注意加上 "distance"，让前端能获取到距离
                                 Aggregation.project()
                                                 .andInclude("id", "author_id", "author_info", "title", "content",
                                                                 "images", "location",
                                                                 "likes_num", "status", "created_at", "distance"),
 
-                                // 阶段6：按发布时间倒序 (覆盖 $geoNear 默认的按距离排序)
+                                // 阶段6：按发布时间倒序（覆盖 $geoNear 默认的距离排序）
                                 Aggregation.sort(Sort.Direction.DESC, "created_at"),
 
                                 // 阶段7：限制返回条数

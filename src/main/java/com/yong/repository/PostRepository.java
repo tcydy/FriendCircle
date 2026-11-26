@@ -13,6 +13,8 @@ import com.yong.repository.custom.PostCustomRepository;
 //用户
 public interface PostRepository extends MongoRepository<Post, String>, PostCustomRepository {
 
+    public void updateLocationById(String postId, String locationName, Double longitude, Double latitude);
+
     public List<Post> findSquarePostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId);
 
     public List<Post> findFollowingPostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId);

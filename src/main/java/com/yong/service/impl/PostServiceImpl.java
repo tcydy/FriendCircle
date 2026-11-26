@@ -45,8 +45,8 @@ public class PostServiceImpl implements PostService {
         if (user == null)
             return null;
         post.setAuthorId(user.getId());
-        
-        Post.AuthorInfo authorInfo = new Post.AuthorInfo(user.getNickname(),user.getAvatar());
+
+        Post.AuthorInfo authorInfo = new Post.AuthorInfo(user.getNickname(), user.getAvatar());
         post.setAuthorInfo(authorInfo);
 
         post.setCreatedAt(LocalDateTime.now());
@@ -59,6 +59,12 @@ public class PostServiceImpl implements PostService {
 
         Post post2 = postRepository.save(post);// 返回了id
         return post2.getId();
+    }
+    
+    // 更新帖子位置（传入帖子id，经度、纬度）
+    @Override 
+    public void updateLocationById(String postId, String locationName, Double longitude, Double latitude) {
+        postRepository.updateLocationById(postId,locationName, longitude, latitude);
     }
 
     // 删除动态

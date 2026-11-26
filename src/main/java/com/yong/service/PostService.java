@@ -9,7 +9,10 @@ import com.yong.pojo.Post;
 public interface PostService {
 
     // 发布动态
-    String insert(Post post,String token);
+    String insert(Post post, String token);
+    
+    // 更新帖子位置（传入帖子id，经度、纬度）
+    void updateLocationById(String postId,String locationName,Double longitude,Double latitude);
 
     // 删除动态
     boolean delete(String postId, String token);
