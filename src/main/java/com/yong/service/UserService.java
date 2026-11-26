@@ -1,5 +1,8 @@
 package com.yong.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.yong.pojo.User;
 
 public interface UserService {
@@ -24,5 +27,8 @@ public interface UserService {
     boolean isUsernameExist(String username);
 
     Boolean selectFollow(String token, String targetUserId, Integer action);
+
+    // 获取关注/被关注列表
+    List<User> relations(String keyword, Integer type, Integer size, LocalDateTime lastCreatedAt, String token);
 
 }

@@ -1,5 +1,6 @@
 package com.yong.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -21,5 +22,7 @@ public interface UserRepository extends MongoRepository<User, String>, UserCusto
     public boolean isUsernameExist(String username);
 
     public void updateStats(String userId, int followingDelta, int followerDelta);
+
+    public List<User> relations(String safeKeyword, Integer safeSize, LocalDateTime lastCreatedAt, String userId, Integer type);
 
 }

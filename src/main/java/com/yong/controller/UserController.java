@@ -1,5 +1,11 @@
 package com.yong.controller;
 
+import com.yong.repository.UserRepository;
+import com.yong.service.impl.UserServiceImpl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,10 +29,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 public class UserController {
 
+    private final UserServiceImpl userServiceImpl;
+    private final UserRepository userRepository;
     private final UserService userService;
 
-    UserController(UserService userService) {
+    UserController(UserService userService, UserRepository userRepository, UserServiceImpl userServiceImpl) {
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.userServiceImpl = userServiceImpl;
     }
 
     // 登录
@@ -63,12 +73,12 @@ public class UserController {
 
     // 修改密码
     @PostMapping("/password")
-    public Result updatePassword(@RequestBody User user,@RequestHeader("Authorization") String token) {
+    public Result updatePassword(@RequestBody User user, @RequestHeader("Authorization") String token) {
 
         if (StrUtil.isEmpty(user.getPassword()) || StrUtil.isBlank(user.getNewPassword())) {
             return Result.error("旧密码不正确或输入为空");
         }
-        if (!userService.updatePassword(user,token)) {
+        if (!userService.updatePassword(user, token)) {
             return Result.error("旧密码不正确或输入为空");
         }
         return Result.success();
@@ -112,6 +122,18 @@ public class UserController {
             @PathVariable String targetUserId) {
         Boolean isFollow = userService.selectFollow(token, targetUserId, action);
         return Result.success(isFollow);
+    }
+
+    // 获取关注/被关注列表
+    @GetMapping("/relations")
+    public Result relations(@RequestParam(defaultValue = "") String keyword,
+            @RequestParam Integer type,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) LocalDateTime lastCreatedAt,
+            @RequestHeader("Authorization") String token) {
+        log.info("keyword:{}",keyword);
+        List<User> userList= userService.relations(keyword, type, size, lastCreatedAt,token);
+        return Result.success(userList);
     }
 
 }

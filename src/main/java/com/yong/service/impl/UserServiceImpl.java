@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -186,6 +187,27 @@ public class UserServiceImpl implements UserService {
 
         throw new RuntimeException("非法的 action 参数");
 
+    }
+
+    // 获取关注/被关注列表
+    @Override
+    public List<User> relations(String keyword, Integer type, Integer size, LocalDateTime lastCreatedAt, String token) {
+        Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
+        
+        log.info("keyword:{}",keyword);
+        // 对用户输入的关键词进行转义，防止正则注入 (比如用户输入 `.*` 会导致全表扫描)
+        String safeKeyword =null;
+        if (!Objects.equals(keyword,"") && !Objects.equals(keyword,null) ) {
+            safeKeyword = Pattern.quote(keyword);
+        }
+
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        String userId = (String) claims.get("id");
+
+        log.info("safeKeyword:{},safeSize:{},lastCreatedAt:{},userId:{},type:{}", safeKeyword, safeSize, lastCreatedAt,
+                userId,type);
+
+        return userRepository.relations(safeKeyword,safeSize, lastCreatedAt, userId,type );
     }
 
 

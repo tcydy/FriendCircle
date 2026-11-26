@@ -18,10 +18,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import org.springframework.data.mongodb.core.aggregation.*;
-import org.springframework.data.mongodb.core.aggregation.BooleanOperators.And;
-import org.springframework.data.mongodb.core.aggregation.BooleanOperators.Or;
-import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq;
-import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Gt;
 
 import com.mongodb.client.result.UpdateResult;
 import com.yong.pojo.Follow;
