@@ -9,7 +9,7 @@ import com.yong.pojo.Post;
 public interface PostService {
 
     // 发布动态
-    String insert(Post post);
+    String insert(Post post,String token);
 
     // 删除动态
     boolean delete(String postId, String token);

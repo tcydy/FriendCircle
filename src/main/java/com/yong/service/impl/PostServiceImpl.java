@@ -1,6 +1,7 @@
 package com.yong.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.yong.pojo.Follow;
 import com.yong.pojo.LikeResult;
 import com.yong.pojo.Post;
+import com.yong.pojo.Post.PostComment;
 import com.yong.pojo.User;
 import com.yong.repository.FollowRepository;
 import com.yong.repository.PostRepository;
@@ -37,8 +39,24 @@ public class PostServiceImpl implements PostService {
 
     // 发布动态
     @Override
-    public String insert(Post post) {
+    public String insert(Post post, String token) {
+        Map<String, Object> claims = JwtUtils.parseToken(token);
+        User user = userRepository.findById((String) claims.get("id")).orElse(null);
+        if (user == null)
+            return null;
+        post.setAuthorId(user.getId());
+        
+        Post.AuthorInfo authorInfo = new Post.AuthorInfo(user.getNickname(),user.getAvatar());
+        post.setAuthorInfo(authorInfo);
+
         post.setCreatedAt(LocalDateTime.now());
+        post.setLikesNum(0);
+        List<String> likes = new ArrayList<>();
+        post.setLikes(likes);
+
+        List<PostComment> comments = new ArrayList<>();
+        post.setComments(comments);
+
         Post post2 = postRepository.save(post);// 返回了id
         return post2.getId();
     }
@@ -108,7 +126,6 @@ public class PostServiceImpl implements PostService {
         String userId = (String) claims.get("id");
         LikeResult likeResult = postRepository.like(postId, userId, action);
         return likeResult;
-
     }
 
     // 帖子详情

@@ -1,7 +1,6 @@
 package com.yong.repository.custom;
 
 import com.yong.pojo.Follow;
-import com.yong.pojo.User;
 
 public interface FollowCustomRepository {
 
@@ -11,6 +10,6 @@ public interface FollowCustomRepository {
 
     public void delete(Follow follow);
 
-    public void updateProfileById(User user);
+
 
 }

@@ -37,9 +37,9 @@ public class PostController {
 
     // 发布动态
     @PostMapping
-    public Result insert(@RequestBody Post post) {
+    public Result insert(@RequestBody Post post,@RequestHeader("Authorization") String token) {
         log.info("发布动态：{}", post);
-        String postId = postService.insert(post);
+        String postId = postService.insert(post,token);
         return Result.success(postId);
     }
 

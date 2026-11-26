@@ -52,6 +52,8 @@ public class Post {
 
     // ===================== 内嵌类 =====================
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor 
     public static class AuthorInfo {
         private String nickname;
         private String avatar;

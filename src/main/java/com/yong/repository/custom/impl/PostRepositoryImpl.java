@@ -7,10 +7,11 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.MongoExpression;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-
+import org.springframework.data.mongodb.core.aggregation.AggregationExpression;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.NearQuery;
@@ -37,59 +38,69 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
         @Override
         public List<Post> findSquarePostByCursor(Integer size, LocalDateTime lastCreatedAt, String currentUserId) {
-                // 初始匹配：直接排除私密 status=1
+                // 1. 初始匹配：排除私密，时间游标使用数据库实际字段名 created_at
                 Criteria matchCriteria = Criteria.where("status").ne(1);
                 if (lastCreatedAt != null) {
-                        matchCriteria.and("createdAt").lt(lastCreatedAt);
+                        matchCriteria.and("created_at").lt(lastCreatedAt); // 🔑 改成 created_at
                 }
 
+                // 2. 权限表达式：使用数据库实际字段名 author_id
+                String canViewJson = String.format("""
+                                {$or: [
+                                    {$eq: ["$status", 0]},
+                                    {$and: [
+                                        {$eq: ["$status", 2]},
+                                        {$gt: [{$size: "$followRecord"}, 0]}
+                                    ]},
+                                    {$eq: ["$author_id", "%s"]}
+                                ]}
+                                """, currentUserId); // 🔑 "$authorId" 改为 "$author_id"
+
                 Aggregation agg = Aggregation.newAggregation(
-                                // 1. 基础过滤（排除私密、时间游标）
+                                // 1. 基础过滤
                                 Aggregation.match(matchCriteria),
 
-                                // 2. 关联 follow 集合（Bug 修复：加入 followerId = currentUserId 限制）
+                                // 2. 关联 follow 集合
                                 Aggregation.lookup()
                                                 .from("follow")
                                                 .let(VariableOperators.Let.just(
                                                                 VariableOperators.Let.ExpressionVariable
                                                                                 .newVariable("authorId")
-                                                                                .forField("authorId")))
+                                                                                .forField("author_id"))) // 🔑 forField
+                                                                                                         // 改成 author_id
                                                 .pipeline(
                                                                 Aggregation.match(
                                                                                 new Criteria().andOperator(
-                                                                                                Criteria.where("followeeId")
+                                                                                                Criteria.where("followee_id") // 🔑
+                                                                                                                              // 假设
+                                                                                                                              // follow
+                                                                                                                              // 表也是下划线
                                                                                                                 .is("$$authorId"),
-                                                                                                Criteria.where("followerId")
-                                                                                                                .is(currentUserId) // 只查当前用户的关注记录
-                                                                                )))
+                                                                                                Criteria.where("follower_id") // 🔑
+                                                                                                                              // 假设
+                                                                                                                              // follow
+                                                                                                                              // 表也是下划线
+                                                                                                                .is(currentUserId))))
                                                 .as("followRecord"),
 
                                 // 3. 计算 canView 权限
                                 Aggregation.addFields()
                                                 .addField("canView")
-                                                .withValueOfExpression("""
-                                                                $or: [
-                                                                    {$eq: ["$status", 0]},
-                                                                    {$and: [
-                                                                        {$eq: ["$status", 2]},
-                                                                        {$gt: [{$size: "$followRecord"}, 0]}
-                                                                    ]},
-                                                                    {$eq: ["$authorId", ?0]}
-                                                                ]
-                                                                """, currentUserId)
+                                                .withValueOf(AggregationExpression
+                                                                .from(MongoExpression.create(canViewJson)))
                                                 .build(),
 
                                 // 4. 过滤没有权限的帖子
                                 Aggregation.match(Criteria.where("canView").is(true)),
 
-                                // 5. 投影
+                                // 5. 投影（注意 MongoDB 主键是 _id）
                                 Aggregation.project()
-                                                .andInclude("id", "authorId", "authorInfo", "title", "content",
-                                                                "images", "location",
-                                                                "likesNum", "status", "createdAt"),
+                                                .andInclude("_id", "author_id", "author_info", "title", "content",
+                                                                "images", "location", "likes_num", "status",
+                                                                "created_at"),
 
-                                // 6. 按发布时间倒序
-                                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                                // 6. 按发布时间倒序（使用数据库实际字段名）
+                                Aggregation.sort(Sort.Direction.DESC, "created_at"), // 🔑 改成 created_at
 
                                 // 7. 限制条数
                                 Aggregation.limit(size));
@@ -171,7 +182,7 @@ public class PostRepositoryImpl implements PostCustomRepository {
                 // 1. 基础过滤条件（排除私密 status=1，以及时间游标）
                 Criteria matchCriteria = Criteria.where("status").ne(1);
                 if (lastCreatedAt != null) {
-                        matchCriteria.and("createdAt").lt(lastCreatedAt);
+                        matchCriteria.and("created_at").lt(lastCreatedAt);
                 }
 
                 Query query = new Query(matchCriteria);
@@ -189,56 +200,55 @@ public class PostRepositoryImpl implements PostCustomRepository {
                                 // "distance" 是自动生成的字段，代表计算出的距离，返回给前端用
                                 Aggregation.geoNear(nearQuery, "distance"),
 
-                                // 阶段2：关联 follow 集合 (followerId 限制)
+                                // 阶段2：关联 follow 集合 (follower_id 限制)
                                 Aggregation.lookup()
                                                 .from("follow")
                                                 .let(VariableOperators.Let.just(
                                                                 VariableOperators.Let.ExpressionVariable
-                                                                                .newVariable("authorId")
-                                                                                .forField("authorId")))
+                                                                                .newVariable("author_id")
+                                                                                .forField("author_id")))
                                                 .pipeline(
                                                                 Aggregation.match(
                                                                                 new Criteria().andOperator(
-                                                                                                Criteria.where("followeeId")
-                                                                                                                .is("$$authorId"),
-                                                                                                Criteria.where("followerId")
+                                                                                                Criteria.where("followee_id")
+                                                                                                                .is("$$author_id"),
+                                                                                                Criteria.where("follower_id")
                                                                                                                 .is(currentUserId))))
-                                                .as("followRecord"),
+                                                .as("follow_record"),
 
-                                // 阶段3：计算 canView 权限
+                                // 阶段3：计算 can_view 权限
                                 Aggregation.addFields()
-                                                .addField("canView")
+                                                .addField("can_view")
                                                 .withValueOfExpression("""
                                                                 $or: [
                                                                     {$eq: ["$status", 0]},
                                                                     {$and: [
                                                                         {$eq: ["$status", 2]},
-                                                                        {$gt: [{$size: "$followRecord"}, 0]}
+                                                                        {$gt: [{$size: "$follow_record"}, 0]}
                                                                     ]},
-                                                                    {$eq: ["$authorId", ?0]}
+                                                                    {$eq: ["$author_id", ?0]}
                                                                 ]
                                                                 """, currentUserId)
                                                 .build(),
 
                                 // 阶段4：过滤没有权限的帖子
-                                Aggregation.match(Criteria.where("canView").is(true)),
+                                Aggregation.match(Criteria.where("can_view").is(true)),
 
-                                // 阶段5：投影 (修复：andInclude 自动排除了未列出的字段，不能和 andExclude 混用)
+                                // 阶段5：投影
                                 // 注意加上 "distance"，让前端能获取到距离
                                 Aggregation.project()
-                                                .andInclude("id", "authorId", "authorInfo", "title", "content",
+                                                .andInclude("id", "author_id", "author_info", "title", "content",
                                                                 "images", "location",
-                                                                "likesNum", "status", "createdAt", "distance"),
+                                                                "likes_num", "status", "created_at", "distance"),
 
                                 // 阶段6：按发布时间倒序 (覆盖 $geoNear 默认的按距离排序)
-                                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                                Aggregation.sort(Sort.Direction.DESC, "created_at"),
 
                                 // 阶段7：限制返回条数
                                 Aggregation.limit(size));
 
                 AggregationResults<Post> result = mongoTemplate.aggregate(agg, "post", Post.class);
                 return result.getMappedResults();
-
         }
 
         @Override
@@ -249,56 +259,56 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
                 // 时间游标
                 if (lastCreatedAt != null) {
-                        matchCriteria.and("createdAt").lt(lastCreatedAt);
+                        matchCriteria.and("created_at").lt(lastCreatedAt);
                 }
 
                 Aggregation agg = Aggregation.newAggregation(
                                 // 1. 基础过滤（关键词匹配、排除私密、时间游标）
                                 Aggregation.match(matchCriteria),
 
-                                // 2. 关联 follow 集合（加入 followerId = currentUserId 限制）
+                                // 2. 关联 follow 集合（加入 follower_id = currentUserId 限制）
                                 Aggregation.lookup()
                                                 .from("follow")
                                                 .let(VariableOperators.Let.just(
                                                                 VariableOperators.Let.ExpressionVariable
-                                                                                .newVariable("authorId")
-                                                                                .forField("authorId")))
+                                                                                .newVariable("author_id")
+                                                                                .forField("author_id")))
                                                 .pipeline(
                                                                 Aggregation.match(
                                                                                 new Criteria().andOperator(
-                                                                                                Criteria.where("followeeId")
-                                                                                                                .is("$$authorId"),
-                                                                                                Criteria.where("followerId")
+                                                                                                Criteria.where("followee_id")
+                                                                                                                .is("$$author_id"),
+                                                                                                Criteria.where("follower_id")
                                                                                                                 .is(userId) // 只查当前用户的关注记录
                                                                                 )))
-                                                .as("followRecord"),
+                                                .as("follow_record"),
 
-                                // 3. 计算 canView 权限
+                                // 3. 计算 can_view 权限
                                 Aggregation.addFields()
-                                                .addField("canView")
+                                                .addField("can_view")
                                                 .withValueOfExpression("""
                                                                 $or: [
                                                                     {$eq: ["$status", 0]},
                                                                     {$and: [
                                                                         {$eq: ["$status", 2]},
-                                                                        {$gt: [{$size: "$followRecord"}, 0]}
+                                                                        {$gt: [{$size: "$follow_record"}, 0]}
                                                                     ]},
-                                                                    {$eq: ["$authorId", ?0]}
+                                                                    {$eq: ["$author_id", ?0]}
                                                                 ]
                                                                 """, userId)
                                                 .build(),
 
                                 // 4. 过滤没有权限的帖子
-                                Aggregation.match(Criteria.where("canView").is(true)),
+                                Aggregation.match(Criteria.where("can_view").is(true)),
 
                                 // 5. 投影
                                 Aggregation.project()
-                                                .andInclude("id", "authorId", "authorInfo", "title", "content",
+                                                .andInclude("id", "author_id", "author_info", "title", "content",
                                                                 "images", "location",
-                                                                "likesNum", "status", "createdAt"),
+                                                                "likes_num", "status", "created_at"),
 
                                 // 6. 按发布时间倒序
-                                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                                Aggregation.sort(Sort.Direction.DESC, "created_at"),
 
                                 // 7. 限制条数
                                 Aggregation.limit(size));
@@ -317,7 +327,7 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
                         Update update = new Update()
                                         .addToSet("likes", userId)
-                                        .inc("likesNum", 1);
+                                        .inc("likes_num", 1);
 
                         // 使用 findAndModify，并返回更新后的文档
                         Post updatedPost = mongoTemplate.findAndModify(
@@ -339,7 +349,7 @@ public class PostRepositoryImpl implements PostCustomRepository {
 
                         Update update = new Update()
                                         .pull("likes", userId)
-                                        .inc("likesNum", -1);
+                                        .inc("likes_num", -1);
 
                         Post updatedPost = mongoTemplate.findAndModify(
                                         query,
@@ -370,17 +380,17 @@ public class PostRepositoryImpl implements PostCustomRepository {
                 int limit = (size == null || size <= 0) ? 10 : Math.min(size, 50);
 
                 // 1. 公共过滤：作者 + 时间游标
-                Criteria matchCriteria = Criteria.where("authorId").is(userId);
+                Criteria matchCriteria = Criteria.where("author_id").is(userId);
                 if (lastCreatedAt != null) {
-                        matchCriteria.and("createdAt").lt(lastCreatedAt);
+                        matchCriteria.and("created_at").lt(lastCreatedAt);
                 }
 
                 // 2. 可见性：自己看自己 → 不过滤；看别人 → 公开 + (粉丝可见)
                 if (!Objects.equals(myId, userId)) {
                         // 单向判断：访问者 myId 是否关注了作者 userId
                         boolean followed = mongoTemplate.exists(
-                                        Query.query(Criteria.where("followerId").is(myId)
-                                                        .and("followeeId").is(userId)),
+                                        Query.query(Criteria.where("follower_id").is(myId)
+                                                        .and("followee_id").is(userId)),
                                         Follow.class);
 
                         if (followed) {
@@ -395,12 +405,12 @@ public class PostRepositoryImpl implements PostCustomRepository {
                                 Aggregation.match(matchCriteria),
 
                                 Aggregation.project()
-                                                .andInclude("_id", "authorId", "authorInfo", "title", "content",
-                                                                "images", "location", "likesNum", "likes", "status",
-                                                                "createdAt"),
+                                                .andInclude("_id", "author_id", "author_info", "title", "content",
+                                                                "images", "location", "likes_num", "likes", "status",
+                                                                "created_at"),
 
                                 // _id 作为第二排序键，避免同毫秒发布时顺序抖动
-                                Aggregation.sort(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("_id"))),
+                                Aggregation.sort(Sort.by(Sort.Order.desc("created_at"), Sort.Order.desc("_id"))),
 
                                 Aggregation.limit(limit));
 
@@ -430,10 +440,10 @@ public class PostRepositoryImpl implements PostCustomRepository {
                                 Criteria.where("id").is(id)
                                                 // 权限校验：要么当前人是贴主，要么当前人是评论发布者
                                                 .orOperator(
-                                                                Criteria.where("authorId").is(userId),
+                                                                Criteria.where("author_id").is(userId),
                                                                 Criteria.where("comments").elemMatch(
                                                                                 Criteria.where("id").is(commentId)
-                                                                                                .and("userId")
+                                                                                                .and("user_id")
                                                                                                 .is(userId))));
 
                 // 2. 构建更新操作：从 comments 数组中移除指定 id 的评论
