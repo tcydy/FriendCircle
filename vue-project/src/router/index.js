@@ -40,25 +40,25 @@ const routes = [
       {
         path: 'home',
         name: 'BackHome',
-        component: () => import('../views/back/Home.vue'),
+        component: () => import('../views/front/Home.vue'),
         meta: { title: '后台首页' }
       },
       {
         path: 'password',
         name: 'BackPassword',
-        component: () => import('../views/back/Password.vue'),
+        component: () => import('../views/front/Password.vue'),
         meta: { title: '修改密码' }
       },
       {
         path: 'person',
         name: 'BackPerson',
-        component: () => import('../views/back/Person.vue'),
+        component: () => import('../views/front/Person.vue'),
         meta: { title: '个人信息' }
       },
       {
         path: 'admin',
         name: 'BackAdmin',
-        component: () => import('../views/back/Admin.vue'),
+        component: () => import('../views/front/Admin.vue'),
         meta: { title: '管理员管理' }
       },
       {
@@ -70,7 +70,7 @@ const routes = [
       {
         path: 'student',
         name: 'BackStudent',
-        component: () => import('../views/back/Student.vue'),
+        component: () => import('../views/front/Student.vue'),
         meta: { title: '学生管理' }
       },
       {
