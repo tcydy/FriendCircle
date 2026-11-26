@@ -141,6 +141,10 @@ public class PostServiceImpl implements PostService {
         if (post.getStatus() == 0) {
             return post;
         }
+        //自己帖子一律放行
+        else if (Objects.equals(post.getAuthorId(), userId)) {
+            return post;
+        }
         // 仅粉见
         else if (post.getStatus() == 2) {
             Follow follow = followRepository.findByFollowerIdAndFolloweeId(userId, post.getAuthorId());
@@ -148,10 +152,6 @@ public class PostServiceImpl implements PostService {
             if (follow != null) {
                 return post;
             }
-        }
-        // 私密且是自己的帖子
-        else if (post.getStatus() == 1 && Objects.equals(post.getAuthorId(), userId)) {
-            return post;
         }
         return null;
     }
@@ -162,6 +162,9 @@ public class PostServiceImpl implements PostService {
         Map<String, Object> claims = JwtUtils.parseToken(token);
         String myId = (String) claims.get("id");
         Integer safeSize = (size == null || size <= 0) ? 10 : Math.min(size, 50); // 最大拉取 50 条
+
+        log.info("myId:{},userId:{}",myId,userId);
+        
         return postRepository.findMyPostByCursor(safeSize, lastCreatedAt, myId,userId);
     }
 

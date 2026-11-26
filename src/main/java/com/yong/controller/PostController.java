@@ -99,7 +99,7 @@ public class PostController {
         return Result.success(rows);
     }
 
-    // 点赞/取消点赞
+    // 点赞/取消点赞(0=like/1=cancel)
     @PostMapping("/{postId}/like")
     public Result like(@PathVariable String postId,
             @RequestHeader("Authorization") String token,
@@ -126,6 +126,8 @@ public class PostController {
             @RequestParam(required = false) LocalDateTime lastCreatedAt,
             @RequestHeader("Authorization") String token,
             @PathVariable String userId) {
+
+        log.info("userId:{}",userId);
         List<Post> rows = postService.myPostList(size, lastCreatedAt, token,userId);
         return Result.success(rows);
     }
