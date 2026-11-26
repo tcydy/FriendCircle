@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { projectName } from '../config/config.default.js'
-import request from '@/utils/request' 
+import request from '@/utils/request'
 
 const routes = [
   // 根路径：统一交给守卫处理
@@ -31,78 +31,73 @@ const routes = [
 
   // 后台路由
   {
-    path: '/back',
-    name: 'Back',
-    component: () => import('../views/Back.vue'),
-    redirect: '/back/home',          // 访问 /back 自动进首页
+    path: '/front',
+    name: 'Front',
+    component: () => import('../views/Front.vue/index.js'),
+    redirect: '/front/square',          // 访问 /front 自动进首页
     meta: { requiresAuth: true },    // 标记该分支需要登录
     children: [
-      {
-        path: 'home',
-        name: 'BackHome',
-        component: () => import('../views/front/Home.vue'),
-        meta: { title: '后台首页' }
-      },
+
       {
         path: 'password',
-        name: 'BackPassword',
+        name: 'FrontPassword',
         component: () => import('../views/front/Password.vue'),
         meta: { title: '修改密码' }
       },
       {
         path: 'person',
-        name: 'BackPerson',
+        name: 'FrontPerson',
         component: () => import('../views/front/Person.vue'),
         meta: { title: '个人信息' }
       },
       {
-        path: 'admin',
-        name: 'BackAdmin',
-        component: () => import('../views/front/Admin.vue'),
-        meta: { title: '管理员管理' }
+        path: 'post',
+        name: 'FrontPost',
+        component: () => import('../views/front/Post.vue'),
+        meta: { title: '动态详情页' }
       },
       {
-        path: 'dept',
-        name: 'BackDept',
-        component: () => import('../views/back/Dept.vue'),
+        path: 'following',
+        name: 'FrontFollowing',
+        component: () => import('../views/front/Following.vue'),
         meta: { title: '院系管理' }
       },
       {
-        path: 'student',
-        name: 'BackStudent',
-        component: () => import('../views/front/Student.vue'),
-        meta: { title: '学生管理' }
+        path: 'nearby',
+        name: 'FrontNearby',
+        component: () => import('../views/front/Nearby.vue'),
+        meta: { title: '院系管理' }
       },
       {
-        path: 'teacher',
-        name: 'BackTeacher',
-        component: () => import('../views/back/Teacher.vue'),
-        meta: { title: '教师管理' }
+        path: 'profile',
+        name: 'FrontProfile',
+        component: () => import('../views/front/Profile.vue'),
+        meta: { title: '院系管理' }
       },
       {
-        path: 'class',
-        name: 'BackClass',
-        component: () => import('../views/back/Class.vue'),
-        meta: { title: '班级管理' }
+        path: 'publish',
+        name: 'FrontPublish',
+        component: () => import('../views/front/Publish.vue'),
+        meta: { title: '院系管理' }
       },
       {
-        path: 'course',
-        name: 'BackCourse',
-        component: () => import('../views/back/Course.vue'),
-        meta: { title: '课程管理' }
+        path: 'relations',
+        name: 'FrontRelations',
+        component: () => import('../views/front/Relations.vue'),
+        meta: { title: '院系管理' }
       },
       {
-        path: 'teaching',
-        name: 'BackTeaching',
-        component: () => import('../views/back/Teaching.vue'),
-        meta: { title: '授课安排管理' }
+        path: 'search',
+        name: 'FrontSearch',
+        component: () => import('../views/front/Search.vue'),
+        meta: { title: '院系管理' }
       },
       {
-        path: 'enrollment',
-        name: 'BackEnrollment',
-        component: () => import('../views/back/Enrollment.vue'),
-        meta: { title: '学生选课管理' }
-      }
+        path: 'square',
+        name: 'FrontSquare',
+        component: () => import('../views/front/Square.vue'),
+        meta: { title: '院系管理' }
+      },
     ]
   },
 
@@ -137,7 +132,6 @@ router.beforeEach(async (to) => {
   const sysuser = getSysuser()
 
   // 1. 【白名单】如果是登录页或注册页，直接放行！
-  // 千万别在这里加“已登录就跳后台”，容易和401清理冲突导致死循环
   if (to.path === '/login' || to.path === '/register') {
     return true
   }
@@ -150,9 +144,8 @@ router.beforeEach(async (to) => {
   // 3. 如果有 token，且去的是后台页面，才去调后端验证
   if (to.meta.requiresAuth && sysuser?.token) {
     try {
-      // ⚠️ 注意：不要传 sysuser 作为第二个参数，token 拦截器已经帮你带了
       // 加上 timeout 防止后端卡死导致前端一直等
-      await request.get('/web/checkToken', { timeout: 3000 }) 
+      await request.get('/web/checkToken', { timeout: 3000 })
       return true
     } catch (e) {
       // 验证失败，直接去登录页
