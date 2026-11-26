@@ -1,8 +1,5 @@
 package com.yong.controller;
 
-import com.yong.repository.UserRepository;
-import com.yong.service.impl.UserServiceImpl;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,14 +26,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 public class UserController {
 
-    private final UserServiceImpl userServiceImpl;
-    private final UserRepository userRepository;
     private final UserService userService;
 
-    UserController(UserService userService, UserRepository userRepository, UserServiceImpl userServiceImpl) {
+    UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.userServiceImpl = userServiceImpl;
     }
 
     // 登录

@@ -2,7 +2,6 @@ package com.yong.repository.custom.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
