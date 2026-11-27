@@ -12,7 +12,7 @@ const router = useRouter()
 const userFromInst = ref(null)
 
 //登录表单
-const sysuser = reactive({
+const user = reactive({
   username: '',
   password: ''
 })
@@ -37,16 +37,16 @@ const login = () => {
   //表单校验合法
   userFromInst.value.validate((valid) => {//如果合法
     if (valid) {
-      request.post('/web/login', sysuser).then((res) => {
+      request.post('/users/login', user).then((res) => {
         if (res.code === 1) {
-          localStorage.setItem('sysuser', JSON.stringify(res.data))
+          localStorage.setItem('user', JSON.stringify(res.data))
           const redirectUrl = router.currentRoute.value.query.redirect
           if (redirectUrl) {
             // 如果有，就跳回去
-            router.push(redirectUrl) 
+            router.push(redirectUrl)
           } else {
             // 如果没有，默认去后台首页
-            router.push('/back/home')
+            router.push('/front/square')
           }
           ElMessage.success('登录成功')
         }
@@ -71,31 +71,23 @@ const login = () => {
         <span class="dot-grid" aria-hidden="true"></span>
 
         <div class="brand-top">
-          <div class="brand-logo">
-            <!-- 学士帽 Icon -->
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10 12 5 2 10l10 5 10-5Z" />
-              <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-            </svg>
-          </div>
           <span class="brand-name">{{ projectName }}</span>
         </div>
 
         <div class="brand-body">
-          <h1 class="brand-title">选课，<br />从此轻松一点</h1>
+          <h1 class="brand-title">分享，<br />从此更近一点</h1>
           <p class="brand-desc">
-            一站式完成课程查询、选课与退课，实时掌握您的课表安排。
+            一站式浏览动态、发布内容与互动评论，实时关注好友新鲜事。
           </p>
 
           <ul class="brand-points">
-            <li><span class="point-dot"></span>海量课程实时更新</li>
-            <li><span class="point-dot"></span>选课冲突智能提醒</li>
-            <li><span class="point-dot"></span>课表一键导出</li>
+            <li><span class="point-dot"></span>好友动态实时刷新</li>
+            <li><span class="point-dot"></span>点赞评论快捷互动</li>
+            <li><span class="point-dot"></span>动态一键发布</li>
           </ul>
         </div>
 
-        <p class="brand-foot">© 2026 教务处 · 智慧校园</p>
+        <p class="brand-foot">© 2026 FriendCircle</p>
       </section>
 
       <!-- ==================== 右侧：登录表单区 ==================== -->
@@ -103,48 +95,25 @@ const login = () => {
         <div class="form-inner">
           <header class="form-header">
             <h2 class="form-title">欢迎登录</h2>
-            <p class="form-subtitle">请输入您的管理员账号和密码以继续</p>
+            <p class="form-subtitle">请输入您的用户名和密码以继续</p>
           </header>
 
-          <el-form
-            ref="userFromInst"
-            :model="sysuser"
-            :rules="rules"
-            class="login-form"
-            @keydown.enter.prevent="login"
-          >
+          <el-form ref="userFromInst" :model="user" :rules="rules" class="login-form" @keydown.enter.prevent="login">
             <!-- 学号 -->
             <el-form-item prop="username">
-              <el-input
-                v-model="sysuser.username"
-                size="large"
-                placeholder="请输入用户名"
-                :prefix-icon="User"
-                clearable
-              />
+              <el-input v-model="user.username" size="large" placeholder="请输入用户名" :prefix-icon="User" clearable />
             </el-form-item>
 
             <!-- 密码 -->
             <el-form-item prop="password">
-              <el-input
-                v-model="sysuser.password"
-                size="large"
-                placeholder="请输入密码"
-                :prefix-icon="Lock"
-                show-password
-              />
+              <el-input v-model="user.password" size="large" placeholder="请输入密码" :prefix-icon="Lock" show-password />
             </el-form-item>
 
-            <br/>
+            <br />
 
             <!-- 登录按钮 -->
             <el-form-item class="form-button-item">
-              <el-button
-                class="login-button"
-                size="large"
-                :disabled="!isAllow"
-                @click="login"
-              >
+              <el-button class="login-button" size="large" :disabled="!isAllow" @click="login">
                 登 录
               </el-button>
             </el-form-item>
@@ -164,16 +133,25 @@ const login = () => {
 <style scoped>
 /* ==================== 设计令牌（Design Tokens） ==================== */
 .login-page {
-  --c-primary: #00d639;          /* 主色：亮绿 */
-  --c-primary-dark: #00bd33;     /* 主色 hover */
-  --c-primary-soft: rgba(0, 214, 57, 0.12); /* 聚焦光晕 */
-  --c-bg: #f5f6fa;               /* 页面背景 */
-  --c-surface: #ffffff;          /* 卡片背景 */
-  --c-text: #1e1f2b;             /* 主文字 */
-  --c-text-sub: #8b90a0;         /* 辅助文字 */
-  --c-text-light: #b4b9c6;       /* 极弱文字 */
+  --c-primary: #00d639;
+  /* 主色：亮绿 */
+  --c-primary-dark: #00bd33;
+  /* 主色 hover */
+  --c-primary-soft: rgba(0, 214, 57, 0.12);
+  /* 聚焦光晕 */
+  --c-bg: #f5f6fa;
+  /* 页面背景 */
+  --c-surface: #ffffff;
+  /* 卡片背景 */
+  --c-text: #1e1f2b;
+  /* 主文字 */
+  --c-text-sub: #8b90a0;
+  /* 辅助文字 */
+  --c-text-light: #b4b9c6;
+  /* 极弱文字 */
   --c-border: #eceef4;
-  --c-field: #f7f8fa;            /* 输入框底色 */
+  --c-field: #f7f8fa;
+  /* 输入框底色 */
 
   --radius-card: 24px;
   --radius-field: 12px;
@@ -221,6 +199,7 @@ const login = () => {
   border-radius: 50%;
   pointer-events: none;
 }
+
 .blob--lg {
   width: 340px;
   height: 340px;
@@ -228,6 +207,7 @@ const login = () => {
   bottom: -140px;
   background: radial-gradient(circle at 30% 30%, rgba(0, 214, 57, 0.22), rgba(0, 214, 57, 0) 70%);
 }
+
 .blob--sm {
   width: 180px;
   height: 180px;
@@ -256,6 +236,7 @@ const login = () => {
   align-items: center;
   gap: 12px;
 }
+
 .brand-logo {
   width: 40px;
   height: 40px;
@@ -266,6 +247,7 @@ const login = () => {
   background: var(--c-primary);
   box-shadow: 0 6px 16px rgba(0, 214, 57, 0.28);
 }
+
 .brand-name {
   font-size: 15px;
   font-weight: 700;
@@ -280,6 +262,7 @@ const login = () => {
   flex-direction: column;
   justify-content: center;
 }
+
 .brand-title {
   margin: 0 0 16px;
   font-size: 36px;
@@ -287,6 +270,7 @@ const login = () => {
   font-weight: 800;
   letter-spacing: -0.5px;
 }
+
 .brand-desc {
   margin: 0 0 28px;
   max-width: 320px;
@@ -294,6 +278,7 @@ const login = () => {
   line-height: 1.75;
   color: var(--c-text-sub);
 }
+
 .brand-points {
   margin: 0;
   padding: 0;
@@ -301,6 +286,7 @@ const login = () => {
   display: grid;
   gap: 12px;
 }
+
 .brand-points li {
   display: flex;
   align-items: center;
@@ -308,6 +294,7 @@ const login = () => {
   font-size: 13.5px;
   color: #4a4f5e;
 }
+
 .point-dot {
   position: relative;
   flex: none;
@@ -316,6 +303,7 @@ const login = () => {
   border-radius: 50%;
   background: var(--c-primary-soft);
 }
+
 .point-dot::after {
   content: '';
   position: absolute;
@@ -341,6 +329,7 @@ const login = () => {
   flex-direction: column;
   padding: 56px 56px 32px;
 }
+
 .form-inner {
   width: 100%;
   max-width: 360px;
@@ -353,6 +342,7 @@ const login = () => {
   font-weight: 700;
   letter-spacing: -0.3px;
 }
+
 .form-subtitle {
   margin: 0 0 32px;
   font-size: 13.5px;
@@ -363,6 +353,7 @@ const login = () => {
 .login-form :deep(.el-form-item) {
   margin-bottom: 18px;
 }
+
 .login-form :deep(.el-input__wrapper) {
   min-height: 48px;
   padding: 4px 14px;
@@ -372,33 +363,41 @@ const login = () => {
   box-shadow: none;
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
+
 .login-form :deep(.el-input__wrapper:hover) {
   border-color: #e2e5ee;
 }
+
 /* 聚焦：绿色描边 + 柔和光晕 */
 .login-form :deep(.el-input__wrapper.is-focus) {
   background: #fff;
   border-color: var(--c-primary);
   box-shadow: 0 0 0 4px var(--c-primary-soft);
 }
+
 .login-form :deep(.el-input__inner) {
   font-size: 14px;
   color: var(--c-text);
 }
+
 .login-form :deep(.el-input__inner::placeholder) {
   color: #b0b5c2;
 }
+
 .login-form :deep(.el-input__prefix) {
   color: #b0b5c2;
 }
+
 .login-form :deep(.el-input__wrapper.is-focus .el-input__prefix) {
   color: var(--c-primary);
 }
+
 /* 校验错误态 */
 .login-form :deep(.el-form-item.is-error .el-input__wrapper) {
   border-color: #ff5c5c;
   box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
 }
+
 .login-form :deep(.el-form-item__error) {
   padding-top: 4px;
   font-size: 12px;
@@ -412,6 +411,7 @@ const login = () => {
   margin: 4px 0 26px;
   font-size: 13px;
 }
+
 .remember {
   display: inline-flex;
   align-items: center;
@@ -420,17 +420,20 @@ const login = () => {
   cursor: pointer;
   user-select: none;
 }
+
 .remember-input {
   width: 15px;
   height: 15px;
   accent-color: var(--c-primary);
   cursor: pointer;
 }
+
 .forgot-link {
   color: var(--c-text-sub);
   cursor: pointer;
   transition: color 0.2s;
 }
+
 .forgot-link:hover {
   color: var(--c-primary);
 }
@@ -459,10 +462,12 @@ const login = () => {
   box-shadow: 0 8px 20px rgba(0, 214, 57, 0.22);
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
+
 .login-button:hover:not(.is-disabled) {
   transform: translateY(-1px);
   box-shadow: 0 10px 26px rgba(0, 214, 57, 0.34);
 }
+
 .login-button.is-disabled {
   box-shadow: none;
   cursor: not-allowed;
@@ -475,12 +480,14 @@ const login = () => {
   font-size: 13px;
   color: var(--c-text-sub);
 }
+
 .link {
   color: var(--c-primary);
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
 }
+
 .link:hover {
   color: var(--c-primary-dark);
 }
@@ -495,14 +502,17 @@ const login = () => {
   font-size: 12px;
   color: var(--c-text-light);
 }
+
 .form-footer .divider {
   opacity: 0.6;
 }
+
 .footer-link {
   color: var(--c-text-light);
   cursor: pointer;
   transition: color 0.2s;
 }
+
 .footer-link:hover {
   color: var(--c-primary);
 }
@@ -513,41 +523,51 @@ const login = () => {
     align-items: flex-start;
     padding: 20px 16px;
   }
+
   .login-card {
     grid-template-columns: 1fr;
     max-width: 460px;
     min-height: 0;
     margin: auto 0;
   }
+
   .brand-panel {
     gap: 20px;
     padding: 28px 28px 24px;
   }
+
   .brand-body {
     margin-top: 8px;
   }
+
   .brand-title {
     font-size: 26px;
   }
+
   .brand-desc,
   .brand-points,
   .brand-foot,
   .dot-grid {
     display: none;
   }
+
   .form-panel {
     padding: 28px 28px 24px;
   }
+
   .form-inner {
     max-width: none;
     margin: 0;
   }
+
   .form-title {
     font-size: 22px;
   }
+
   .form-subtitle {
     margin-bottom: 24px;
   }
+
   .form-footer {
     margin-top: 24px;
   }

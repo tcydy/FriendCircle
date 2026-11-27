@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yong.pojo.LikeResult;
+import com.yong.pojo.LocationRequst;
 import com.yong.pojo.Post;
 import com.yong.pojo.Result;
 import com.yong.service.PostService;
@@ -46,12 +47,9 @@ public class PostController {
 
     // 更新帖子位置（传入帖子id，经度、纬度）
     @PutMapping("/location")
-    public Result updateLocationById(
-            @RequestParam String postId,
-            @RequestParam(defaultValue = "") String locationName,
-            @RequestParam Double longitude,
-            @RequestParam Double latitude) {
-        postService.updateLocationById(postId, locationName, longitude, latitude);
+    public Result updateLocationById(@RequestBody LocationRequst locationRequst) {
+        log.info("locationRequst:{}", locationRequst);
+        postService.updateLocationById(locationRequst.getPostId(), locationRequst.getLocationName(), locationRequst.getLongitude(), locationRequst.getLatitude());
         return Result.success();
     }
 

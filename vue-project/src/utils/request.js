@@ -4,10 +4,10 @@ import { ElMessage } from 'element-plus'
 import router from '@/router/index.js'
 
 // 安全读取登录信息，避免 JSON.parse 抛错
-function getSysuser() {
+function getUser() {
   try {
-    // 统一读取 'sysuser'，与你 login 代码中的 localStorage.setItem('sysuser') 保持一致
-    const str = localStorage.getItem('sysuser')
+    // 统一读取 'user'，与你 login 代码中的 localStorage.setItem('user') 保持一致
+    const str = localStorage.getItem('user')
     return str ? JSON.parse(str) : null
   } catch {
     return null
@@ -30,10 +30,11 @@ request.interceptors.request.use(
     }
 
     // 自动携带 token
-    const sysuser = getSysuser()
+    const user = getUser()
     // 注意：这里需要确保你登录成功后存入的 res.data 中确实包含 token 字段
-    if (sysuser && sysuser.token) {
-      config.headers['token'] = sysuser.token
+    if (user && user.token) {
+      config.headers['token'] = user.token
+      config.headers['Authorization'] = user.token
     }
 
     return config
@@ -71,7 +72,7 @@ request.interceptors.response.use(
       ElMessage.error(res.msg || '登录已失效，请重新登录')
 
       // 清除本地登录信息
-      localStorage.removeItem('sysuser')
+      localStorage.removeItem('user')
 
       // 避免在登录页重复跳转
       if (router.currentRoute.value.path !== '/login') {
@@ -81,7 +82,7 @@ request.interceptors.response.use(
         })
       }
 
-      // ⚠️ 阻断后续代码
+      // 阻断后续代码
       return Promise.reject(new Error(res.msg || '未登录'))
     }
 
@@ -93,8 +94,8 @@ request.interceptors.response.use(
     // 3. 业务失败 (根据你的 Result 类，code === 0 或其他均为失败)
     // 统一弹出错误提示
     ElMessage.error(res.msg || '请求失败')
-    
-    // ⚠️ 关键修复：必须 return Promise.reject，阻断业务代码里的 .then 继续执行
+
+    // 必须 return Promise.reject，阻断业务代码里的 .then 继续执行
     return Promise.reject(new Error(res.msg || 'Error'))
   },
   (error) => {
@@ -107,7 +108,7 @@ request.interceptors.response.use(
       const status = error.response.status
       if (status === 401) {
         msg = '登录已失效，请重新登录'
-        localStorage.removeItem('sysuser') // 统一使用 sysuser
+        localStorage.removeItem('user') // 统一使用 user
         if (router.currentRoute.value.path !== '/login') {
           router.push('/login')
         }

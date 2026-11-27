@@ -114,6 +114,7 @@ public class UserServiceImpl implements UserService {
     // 修改用户信息
     @Override
     public void updateProfileById(User user) {
+        log.info("service层：{}",user);
         userRepository.updateProfileById(user);
     }
 

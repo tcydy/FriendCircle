@@ -33,7 +33,7 @@ const routes = [
   {
     path: '/front',
     name: 'Front',
-    component: () => import('../views/Front.vue/index.js'),
+    component: () => import('../views/Front.vue'),
     redirect: '/front/square',          // 访问 /front 自动进首页
     meta: { requiresAuth: true },    // 标记该分支需要登录
     children: [
@@ -48,7 +48,7 @@ const routes = [
         path: 'person',
         name: 'FrontPerson',
         component: () => import('../views/front/Person.vue'),
-        meta: { title: '个人信息' }
+        meta: { title: '编辑资料' }
       },
       {
         path: 'post',
@@ -60,43 +60,43 @@ const routes = [
         path: 'following',
         name: 'FrontFollowing',
         component: () => import('../views/front/Following.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '关注动态流' }
       },
       {
         path: 'nearby',
         name: 'FrontNearby',
         component: () => import('../views/front/Nearby.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '附近动态流' }
       },
       {
         path: 'profile',
         name: 'FrontProfile',
         component: () => import('../views/front/Profile.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '个人主页' }
       },
       {
         path: 'publish',
         name: 'FrontPublish',
         component: () => import('../views/front/Publish.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '发布动态页' }
       },
       {
         path: 'relations',
         name: 'FrontRelations',
         component: () => import('../views/front/Relations.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '关注/被关注列表页' }
       },
       {
         path: 'search',
         name: 'FrontSearch',
         component: () => import('../views/front/Search.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '搜索结果页' }
       },
       {
         path: 'square',
         name: 'FrontSquare',
         component: () => import('../views/front/Square.vue'),
-        meta: { title: '院系管理' }
+        meta: { title: '动态广场' }
       },
     ]
   },
@@ -118,9 +118,9 @@ const router = createRouter({
 })
 
 // 安全读取登录信息，避免 JSON.parse 抛错
-function getSysuser() {
+function getUser() {
   try {
-    const str = localStorage.getItem('sysuser')
+    const str = localStorage.getItem('user')
     return str ? JSON.parse(str) : null
   } catch {
     return null
@@ -129,7 +129,7 @@ function getSysuser() {
 
 // 全局前置守卫
 router.beforeEach(async (to) => {
-  const sysuser = getSysuser()
+  const user = getUser()
 
   // 1. 【白名单】如果是登录页或注册页，直接放行！
   if (to.path === '/login' || to.path === '/register') {
@@ -137,15 +137,15 @@ router.beforeEach(async (to) => {
   }
 
   // 2. 如果去后台（requiresAuth），但没 token，去登录
-  if (to.meta.requiresAuth && !sysuser?.token) {
+  if (to.meta.requiresAuth && !user?.token) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
 
   // 3. 如果有 token，且去的是后台页面，才去调后端验证
-  if (to.meta.requiresAuth && sysuser?.token) {
+  if (to.meta.requiresAuth && user?.token) {
     try {
       // 加上 timeout 防止后端卡死导致前端一直等
-      await request.get('/web/checkToken', { timeout: 3000 })
+      await request.get('/users/checkToken', { timeout: 3000 })
       return true
     } catch (e) {
       // 验证失败，直接去登录页

@@ -9,9 +9,9 @@ import { Plus, User, ArrowLeft, X, Check } from "lucide-vue-next";
 const form = ref({});
 
 /* ==================== 用户信息（本地存储） ==================== */
-const sysuser = ref(
-  localStorage.getItem("sysuser")
-    ? JSON.parse(localStorage.getItem("sysuser"))
+const user = ref(
+  localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
     : {}
 );
 
@@ -19,31 +19,34 @@ const sysuser = ref(
 
 /* ==================== 上传请求头 ==================== */
 const uploadHeader = reactive({
-  token: sysuser.value.token || "",
+  token: user.value.token || "",
 });
 
 
 
 /* ==================== 事件声明 ==================== */
-const emit = defineEmits(["update-sysuser", "refreshUser"]);
+const emit = defineEmits(["update-user", "refreshUser"]);
 
 /* ==================== 保存修改 ==================== */
 const save = () => {
   const upload = ref({});
   upload.value.id = form.value.id;
-  upload.value.token = form.value.token;
-  upload.value.image = form.value.image;
+  upload.value.avatar = form.value.avatar;
+  upload.value.nickname = form.value.nickname;
+  upload.value.profile = form.value.profile;
   
   // 传参时必须传 .value 拿到真实对象
-  request.put('/sysusers', upload.value).then((res) => {
+  request.put('/users/profile', upload.value).then((res) => {
     if (res.code === 1) {
       ElMessage.success("保存成功");
-      if (form.value.image) {
-        sysuser.value.image = form.value.image;
-        localStorage.setItem("sysuser", JSON.stringify(sysuser.value));
+      if (form.value.avatar) {
+        user.value.avatar = form.value.avatar;
+        user.value.profile = form.value.profile;
+        user.value.nickname = form.value.nickname;
+        localStorage.setItem("user", JSON.stringify(user.value));
       }
-      emit("update-sysuser", sysuser.value);
-      emit("refreshUser", sysuser.value);
+      emit("update-user", user.value);
+      emit("refreshUser", user.value);
     } else {
       ElMessage.error(res.msg || "保存失败");
     }
@@ -53,8 +56,8 @@ const save = () => {
 
 //获取用户信息
 const loadAccount = () => {
-  form.value = localStorage.getItem("sysuser") ?
-    JSON.parse(localStorage.getItem("sysuser")) :
+  form.value = localStorage.getItem("user") ?
+    JSON.parse(localStorage.getItem("user")) :
     {};
 }
 
@@ -69,8 +72,8 @@ const cancel = () => {
 /* ==================== 头像上传成功 ==================== */
 function handleAvatarSuccess(res) {
   console.log("上传返回:", res);
-  form.value.image = res.data;
-  ElMessage.success('头像上传成功，请点击"保存修改"以保存');
+  form.value.avatar = res.data;
+  ElMessage.success('头像上传成功，请点击"保存"以保存');
 }
 
 /* ==================== 头像上传失败 ==================== */
@@ -111,7 +114,7 @@ onMounted(() => {
         </div>
         <div class="header-text">
           <h1 class="header-title">个人信息</h1>
-          <p class="header-subtitle">管理你的头像与账号基础信息</p>
+          <p class="header-subtitle">管理你的基础信息</p>
         </div>
       </header>
 
@@ -120,7 +123,7 @@ onMounted(() => {
         <el-upload class="avatar-uploader" :action="serverHost + '/web/upload'" :headers="uploadHeader"
           :show-file-list="false" :before-upload="beforeAvatarUpload" :on-success="handleAvatarSuccess"
           :on-error="handleAvatarError" accept="image/*">
-          <img v-if="form.image" :src="form.image" alt="用户头像" class="avatar-image" />
+          <img v-if="form.avatar" :src="form.avatar" alt="用户头像" class="avatar-image" />
           <div v-else class="avatar-placeholder">
             <Plus :size="28" />
           </div>
@@ -132,6 +135,14 @@ onMounted(() => {
       <div class="form-field">
         <label class="field-label">用户名</label>
         <el-input v-model="form.username" disabled autocomplete="off" class="username-input" />
+      </div>
+      <div class="form-field">
+        <label class="field-label">昵称</label>
+        <el-input v-model="form.nickname" class="username-input" />
+      </div>
+      <div class="form-field">
+        <label class="field-label">简介</label>
+        <el-input v-model="form.profile" class="username-input" />
       </div>
 
       <!-- ==================== 操作按钮区 ==================== -->

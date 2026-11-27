@@ -39,6 +39,7 @@ public class UserRepositoryImpl implements UserCustomRepository {
         // 要更新的字段
         Update update = new Update()
                 .set("nickname", user.getNickname())
+                .set("profile", user.getProfile())
                 .set("avatar", user.getAvatar());
 
         // 执行更新：更新第一条匹配的记录

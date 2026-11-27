@@ -6,7 +6,7 @@ import request from "@/utils/request.js";
 import { Lock } from "lucide-vue-next";
 
 // 获取当前登录用户信息
-const sysuser = ref(JSON.parse(localStorage.getItem("sysuser") || "{}"));
+const user = ref(JSON.parse(localStorage.getItem("user") || "{}"));
 
 const router = useRouter();
 
@@ -15,12 +15,12 @@ const passFormRef = ref(null);
 
 // 表单数据
 const form = reactive({
-  id: sysuser?.value.id,
-  username:sysuser?.value.username,
+  id: user?.value.id,
+  username:user?.value.username,
   password: '',
   newPassword: '',
   confirmPassword: '',
-  token:sysuser?.value.token,
+  token:user?.value.token,
 });
 
 // 表单验证规则
@@ -48,10 +48,10 @@ const save = () => {
         return false;
       }
       form.value
-      request.post('/web/password', form).then(res => {
+      request.post('/users/password', form).then(res => {
         if (res.code === 1) {
           ElMessage.success('密码修改成功');
-          localStorage.removeItem('sysuser');
+          localStorage.removeItem('user');
           setTimeout(() => {
             router.push('/login');
           }, 1500);

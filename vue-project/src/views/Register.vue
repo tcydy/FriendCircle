@@ -57,8 +57,9 @@ const register=()=>
       const registerDate={
         username: registerForm.username,
         password:registerForm.password,
+        nickname:registerForm.nickname,
       }
-      request.post('/web/register',registerDate).then((res)=>{
+      request.post('/users/register',registerDate).then((res)=>{
         if(res.code===1)
         {
           ElMessage.success('注册成功，请登录')
@@ -83,38 +84,30 @@ const register=()=>
   <div class="register-page">
     <div class="register-card">
       <!-- ==================== 左侧：品牌 / 宣传区 ==================== -->
-      <section class="brand-panel">
+     <section class="brand-panel">
         <!-- 装饰性几何图形（纯 CSS，无需图片资源） -->
         <span class="blob blob--lg" aria-hidden="true"></span>
         <span class="blob blob--sm" aria-hidden="true"></span>
         <span class="dot-grid" aria-hidden="true"></span>
 
         <div class="brand-top">
-          <div class="brand-logo">
-            <!-- 学士帽 Icon -->
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10 12 5 2 10l10 5 10-5Z" />
-              <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-            </svg>
-          </div>
           <span class="brand-name">{{ projectName }}</span>
         </div>
 
         <div class="brand-body">
-          <h1 class="brand-title">选课，<br />从此轻松一点</h1>
+          <h1 class="brand-title">分享，<br />从此更近一点</h1>
           <p class="brand-desc">
-            一站式完成课程查询、选课与退课，实时掌握您的课表安排。
+            一站式浏览动态、发布内容与互动评论，实时关注好友新鲜事。
           </p>
 
           <ul class="brand-points">
-            <li><span class="point-dot"></span>海量课程实时更新</li>
-            <li><span class="point-dot"></span>选课冲突智能提醒</li>
-            <li><span class="point-dot"></span>课表一键导出</li>
+            <li><span class="point-dot"></span>好友动态实时刷新</li>
+            <li><span class="point-dot"></span>点赞评论快捷互动</li>
+            <li><span class="point-dot"></span>动态一键发布</li>
           </ul>
         </div>
 
-        <p class="brand-foot">© 2026 教务处 · 智慧校园</p>
+        <p class="brand-foot">© 2026 FriendCircle</p>
       </section>
 
       <!-- ==================== 右侧：注册表单区 ==================== -->
@@ -132,7 +125,7 @@ const register=()=>
             class="register-form"
             @keydown.enter.prevent="register"
           >
-            <!-- 学号 -->
+            <!-- 用户名 -->
             <el-form-item prop="username">
               <el-input
                 v-model="registerForm.username"
@@ -162,6 +155,16 @@ const register=()=>
                 placeholder="请再次输入密码"
                 :prefix-icon="Lock"
                 show-password
+              />
+            </el-form-item>
+
+            <el-form-item prop="nickname">
+              <el-input
+                v-model="registerForm.nickname"
+                size="large"
+                placeholder="请输入昵称"
+                :prefix-icon="User"
+                clearable
               />
             </el-form-item>
 

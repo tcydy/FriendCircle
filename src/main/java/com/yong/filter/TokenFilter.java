@@ -30,7 +30,7 @@ public class TokenFilter implements Filter {
         String requestURI = request.getRequestURI();
 
         //2. 判断是否是登录请求，如果路径中包含 /login，说明是登录操作，放行
-        if (requestURI.contains("/login") || requestURI.contains("/register")) {
+        if (requestURI.contains("/login") || requestURI.contains("/register")||requestURI.contains("/web/upload")) {
             log.info("登录请求，放行。");
             chain.doFilter(request, response);
             return;
