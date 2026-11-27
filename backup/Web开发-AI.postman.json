@@ -1,0 +1,1749 @@
+{
+    "info": {
+        "name": "Web开发-AI",
+        "description": "",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. 用户 UserController",
+            "description": "注册、登录、资料、位置、关注。登录成功会自动把 token 写入集合变量。",
+            "item": [
+                {
+                    "name": "获取关注/被关注列表",
+                    "description": "0=关注列表，1=被关注（粉丝）列表",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/relations",
+                            "path": [
+                                "users",
+                                "relations"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "keyword",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "0",
+                                    "description": "0=关注列表，1=被关注（粉丝）列表",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "description": "",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "注册",
+                    "description": "必填 username / password，都会做空值校验。username 有唯一索引，重复注册返回「用户名已存在」。\nnickname、avatar、profile、location 可选，作为初始资料。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"test03\",\n  \"password\": \"123456\",\n  \"nickname\": \"测试三号\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/register",
+                            "path": [
+                                "users",
+                                "register"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/register",
+                                    "path": [
+                                        "users",
+                                        "register"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"username\": \"test01\",\n  \"password\": \"123456\",\n  \"nickname\": \"测试一号\",\n  \"avatar\": \"https://example.com/avatar.png\",\n  \"profile\": \"这个人很懒\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [\n      113.2644,\n      23.1291\n    ]\n  }\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "登录",
+                    "description": "成功后返回 User 对象（含 token 字段），失败返回「用户名或密码错误！」。\n复制返回里的 token 粘到集合变量 {{token}}，后续接口自动复用；本版不含任何脚本/后置操作。",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"test01\",\n  \"password\": \"123456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/login",
+                            "path": [
+                                "users",
+                                "login"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/login",
+                                    "path": [
+                                        "users",
+                                        "login"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"username\": \"test01\",\n  \"password\": \"123456\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "检查 token",
+                    "description": "方法签名里没有 @RequestHeader，说明 token 校验靠拦截器。若项目里配了拦截器，这里必须带 Authorization，返回 success 即 token 有效；返回 401/错误说明 token 过期。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/checkToken",
+                            "path": [
+                                "users",
+                                "checkToken"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/checkToken",
+                                    "path": [
+                                        "users",
+                                        "checkToken"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "查询用户信息",
+                    "description": "按 id 查用户，返回 User（password 有 @JsonIgnore，不会返回）。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userId}}",
+                            "path": [
+                                "users",
+                                "{{userId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/{{userId}}",
+                                    "path": [
+                                        "users",
+                                        "{{userId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "编辑资料",
+                    "description": "按 id 更新资料，只传要改的字段即可（Service 层按非空字段更新）。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "PUT",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": \"{{userId}}\",\n  \"nickname\": \"改名后的昵称\",\n  \"avatar\": \"https://example.com/avatar2.png\",\n  \"profile\": \"新的简介\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/profile",
+                            "path": [
+                                "users",
+                                "profile"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/profile",
+                                    "path": [
+                                        "users",
+                                        "profile"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"id\": \"{{userId}}\",\n  \"nickname\": \"改名后的昵称\",\n  \"avatar\": \"https://example.com/avatar2.png\",\n  \"profile\": \"新的简介\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "更新位置",
+                    "description": "【当前代码有 bug】方法签名是 @PutMapping(\"/location\") + @PathVariable String id，但映射路径里没有 {id} 占位符，调用时会因缺少路径变量直接报错。\n修复方式：改成 @PutMapping(\"/location/{id}\")，本请求把 id 放到 query 里也一样不生效。\n改完映射后，请求地址应为 {{baseUrl}}/users/location/{{userId}}?longitude=...&latitude=...",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "PUT",
+                        "body": {},
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/location",
+                            "path": [
+                                "users",
+                                "location"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "longitude",
+                                    "value": "113.2644",
+                                    "description": "经度",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "latitude",
+                                    "value": "23.1291",
+                                    "description": "纬度",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/location",
+                                    "path": [
+                                        "users",
+                                        "location"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "longitude",
+                                            "value": "113.2644",
+                                            "description": "经度",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "latitude",
+                                            "value": "23.1291",
+                                            "description": "纬度",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "id",
+                                            "value": "{{userId}}",
+                                            "description": "注意：当前代码这里不会生效，见接口说明",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "关注 / 取关",
+                    "description": "action 是裸数字：(0=follow/1=unfollow)（@RequestBody Integer，不要包成 {\"action\":1}）。\ntargetUserId 是被关注/取关的对象，不能等于自己。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "1",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/follow/{{targetUserId}}",
+                            "path": [
+                                "users",
+                                "follow",
+                                "{{targetUserId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/follow/{{targetUserId}}",
+                                    "path": [
+                                        "users",
+                                        "follow",
+                                        "{{targetUserId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "1",
+                                    "options": {
+                                        "raw": {
+                                            "language": "text"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "修改密码",
+                    "description": "方法没有 Authorization 头，Service 靠 User 里的哪个字段定位用户需要你确认，示例同时带上 id 与 username 便于测试，按实际实现删减。\npassword=旧密码，newPassword=新密码，任一为空直接返回错误。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": \"{{userId}}\",\n  \"username\": \"test01\",\n  \"password\": \"123456\",\n  \"newPassword\": \"654321\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/password",
+                            "path": [
+                                "users",
+                                "password"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/password",
+                                    "path": [
+                                        "users",
+                                        "password"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"id\": \"{{userId}}\",\n  \"username\": \"test01\",\n  \"password\": \"123456\",\n  \"newPassword\": \"654321\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                }
+            ],
+            "auth": {}
+        },
+        {
+            "name": "2. 文件 WebController",
+            "description": "阿里云 OSS 上传，返回的 url 直接用于发布动态的 images。",
+            "item": [
+                {
+                    "name": "上传文件",
+                    "description": "form-data 的 key 必须是 file（方法参数名 MultipartFile file）。成功返回 OSS 上的图片 url，可直接填进发布动态的 images 数组。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "description": "选择本地图片/文件",
+                                    "type": "file",
+                                    "disabled": false
+                                }
+                            ]
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/web/upload",
+                            "path": [
+                                "web",
+                                "upload"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/web/upload",
+                                    "path": [
+                                        "web",
+                                        "upload"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "value": "",
+                                            "description": "选择本地图片/文件",
+                                            "type": "file",
+                                            "disabled": false
+                                        }
+                                    ]
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                }
+            ],
+            "auth": {}
+        },
+        {
+            "name": "3. 动态 PostController",
+            "description": "发帖、四类列表（广场/关注/附近/搜索）、他人主页、详情、点赞、评论、删除。",
+            "item": [
+                {
+                    "name": "更新动态位置",
+                    "description": "更新帖子位置（传入帖子id，经度、纬度）",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "PUT",
+                        "body": {},
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/location",
+                            "path": [
+                                "posts",
+                                "location"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "postId",
+                                    "value": "6b07a3a3fb6ec9d0c4c53725",
+                                    "description": "帖子Id",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "locationName",
+                                    "value": "图书馆",
+                                    "description": "地点名",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "longitude",
+                                    "value": "113.2643",
+                                    "description": "经度",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "latitude",
+                                    "value": "23.1295",
+                                    "description": "纬度",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "发布动态",
+                    "description": "方法没有 Authorization 头，发布者身份完全取自 body 的 authorId —— 也就是当前代码允许不带 token 发帖，测试时务必自己填 authorId。\nstatus：0=公布，1=私密，2=仅被关注可见。images 用上传接口返回的 url。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"图书馆打卡\",\n  \"content\": \"今天在图书馆自习到闭馆\",\n  \"images\": [\n    \"https://example.com/1.jpg\"\n  ],\n  \"status\": 0\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts",
+                            "path": [
+                                "posts"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts",
+                                    "path": [
+                                        "posts"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"authorId\": \"{{userId}}\",\n  \"authorInfo\": {\n    \"nickname\": \"测试一号\",\n    \"avatar\": \"https://example.com/avatar.png\"\n  },\n  \"title\": \"图书馆打卡\",\n  \"content\": \"今天在图书馆自习到闭馆\",\n  \"images\": [\n    \"https://example.com/1.jpg\"\n  ],\n  \"location\": {\n    \"name\": \"学校图书馆\",\n    \"geo\": {\n      \"type\": \"Point\",\n      \"coordinates\": [\n        113.2644,\n        23.1291\n      ]\n    }\n  },\n  \"likesNum\": 0,\n  \"status\": 0,\n  \"createdAt\": \"2026-11-25T10:00:00\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "广场动态列表",
+                    "description": "返回 Post 精简字段：id、authorId、authorInfo、title、content、images、location、likesNum、status。\n需要 Authorization，可见性由 Service 按 token 对应用户判断。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/square",
+                            "path": [
+                                "posts",
+                                "square"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "每页条数，默认 10",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "value": "2026-11-25T10:00:00",
+                                    "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/square",
+                                    "path": [
+                                        "posts",
+                                        "square"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "size",
+                                            "value": "10",
+                                            "description": "每页条数，默认 10",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "lastCreatedAt",
+                                            "value": "2026-11-25T10:00:00",
+                                            "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "关注动态列表",
+                    "description": "只返回当前用户已关注的人发的帖子，同样需要 Authorization。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/following",
+                            "path": [
+                                "posts",
+                                "following"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "每页条数，默认 10",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "value": "2026-11-25T10:00:00",
+                                    "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/following",
+                                    "path": [
+                                        "posts",
+                                        "following"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "size",
+                                            "value": "10",
+                                            "description": "每页条数，默认 10",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "lastCreatedAt",
+                                            "value": "2026-11-25T10:00:00",
+                                            "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "附近动态列表",
+                    "description": "按当前用户最新定位筛附近的帖子，所以调用前先调一次「更新位置」，否则用户 location 为空会查不到数据。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/nearby",
+                            "path": [
+                                "posts",
+                                "nearby"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "每页条数，默认 10",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "distance",
+                                    "value": "5000",
+                                    "description": "范围半径，单位米，默认 5000",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "value": "2026-11-25T10:00:00",
+                                    "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/nearby",
+                                    "path": [
+                                        "posts",
+                                        "nearby"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "size",
+                                            "value": "10",
+                                            "description": "每页条数，默认 10",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "distance",
+                                            "value": "5000",
+                                            "description": "范围半径，单位米，默认 5000",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "lastCreatedAt",
+                                            "value": "2026-11-25T10:00:00",
+                                            "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "搜索动态",
+                    "description": "keyword 必传，但传空字符串会直接短路返回空数组（不报错），测空值分支时可以这样打。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/search",
+                            "path": [
+                                "posts",
+                                "search"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "每页条数，默认 10",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "keyword",
+                                    "value": "图书馆",
+                                    "description": "搜索关键词，对应 title",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "value": "2026-11-25T10:00:00",
+                                    "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/search",
+                                    "path": [
+                                        "posts",
+                                        "search"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "size",
+                                            "value": "10",
+                                            "description": "每页条数，默认 10",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "keyword",
+                                            "value": "图书馆",
+                                            "description": "搜索关键词，对应 title",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "lastCreatedAt",
+                                            "value": "2026-11-25T10:00:00",
+                                            "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "别人主页帖子列表",
+                    "description": "路径里的 userId 是被访问主页的主人。可见性规则：\n1) token 解析出的用户 == userId（看自己）→ 全部状态可见，含私密；\n2) 看别人且自己关注了对方 → status 为 0 和 2 的可见；\n3) 看别人且没关注 → 只看到 status=0，status=1/2 在聚合 match 阶段就被过滤，不返回。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/myPost/{{userId}}",
+                            "path": [
+                                "posts",
+                                "myPost",
+                                "{{userId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "size",
+                                    "value": "10",
+                                    "description": "每页条数，默认 10",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "lastCreatedAt",
+                                    "value": "2026-11-25T10:00:00",
+                                    "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                    "type": "string"
+                                }
+                            ],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/myPost/{{userId}}",
+                                    "path": [
+                                        "posts",
+                                        "myPost",
+                                        "{{userId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "size",
+                                            "value": "10",
+                                            "description": "每页条数，默认 10",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "lastCreatedAt",
+                                            "value": "2026-11-25T10:00:00",
+                                            "description": "时间格式必须是 ISO-8601：2026-11-25T10:00:00。写成 2026-11-25 10:00:00 会因格式转换失败报 400。游标取上一页最后一条的 createdAt。",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "帖子详情",
+                    "description": "返回完整 Post（含 likes、comments）。无权限时 Service 返回 null，接口给出「没有访问权限！」。测这个 403 分支：拿一个 status=1 的帖子 id、换没关注它的账号的 token。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "GET",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/{{postId}}",
+                            "path": [
+                                "posts",
+                                "{{postId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/{{postId}}",
+                                    "path": [
+                                        "posts",
+                                        "{{postId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "点赞 / 取消点赞",
+                    "description": "action 是裸数字：(0=like/1=cancel)（不要写成 {\"action\":1}，否则反序列化失败）。\n返回 LikeResult，具体字段以 LikeResult 类为准（通常是点赞状态 + 最新点赞数）。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "1",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/{{postId}}/like",
+                            "path": [
+                                "posts",
+                                "{{postId}}",
+                                "like"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/{{postId}}/like",
+                                    "path": [
+                                        "posts",
+                                        "{{postId}}",
+                                        "like"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "1",
+                                    "options": {
+                                        "raw": {
+                                            "language": "text"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "添加评论",
+                    "description": "参数是 @RequestBody String，所以 body 用 text/plain 裸文本直传。\n如果误用 application/json 并加引号，评论内容里会残留引号；用 JSON 对象则会反序列化失败。\n帖子或用户不存在时返回「用户或帖子不存在！」。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "这条动态不错",
+                            "options": {
+                                "raw": {
+                                    "language": "text"
+                                }
+                            }
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "text/plain",
+                                "description": "评论内容按裸文本传，避免 JSON 反序列化把引号带进正文",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/{{postId}}/comment",
+                            "path": [
+                                "posts",
+                                "{{postId}}",
+                                "comment"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "text/plain",
+                                        "description": "评论内容按裸文本传，避免 JSON 反序列化把引号带进正文",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/{{postId}}/comment",
+                                    "path": [
+                                        "posts",
+                                        "{{postId}}",
+                                        "comment"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "这条动态不错",
+                                    "options": {
+                                        "raw": {
+                                            "language": "text"
+                                        }
+                                    }
+                                }
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "删除评论",
+                    "description": "只有评论作者能删，无权限返回「没有删除权限！」。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "DELETE",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/{{postId}}/comment/{{commentId}}",
+                            "path": [
+                                "posts",
+                                "{{postId}}",
+                                "comment",
+                                "{{commentId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/{{postId}}/comment/{{commentId}}",
+                                    "path": [
+                                        "posts",
+                                        "{{postId}}",
+                                        "comment",
+                                        "{{commentId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                },
+                {
+                    "name": "删除动态",
+                    "description": "注意是 POST 不是 DELETE。Service 校验 token 归属，postId 不属于当前用户则返回「没有删除权限！」。",
+                    "event": [],
+                    "auth": {},
+                    "request": {
+                        "auth": {},
+                        "method": "POST",
+                        "body": {},
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "{{token}}",
+                                "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/posts/delete/{{postId}}",
+                            "path": [
+                                "posts",
+                                "delete",
+                                "{{postId}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "成功",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "{{token}}",
+                                        "description": "登录接口返回的 token。当前控制器直接读 Authorization 原始值，若后端要求 Bearer 前缀，请把值改成 Bearer {{token}}",
+                                        "disabled": false
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/posts/delete/{{postId}}",
+                                    "path": [
+                                        "posts",
+                                        "delete",
+                                        "{{postId}}"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "body": {}
+                            },
+                            "cookie": []
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                }
+            ],
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                }
+            ],
+            "auth": {}
+        }
+    ],
+    "variable": [],
+    "event": [],
+    "auth": {}
+}
