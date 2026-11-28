@@ -1,10 +1,9 @@
 <script setup>
-import { reactive, ref, shallowRef } from "vue";
+import {ref, shallowRef } from "vue";
 
 import { Delete, UploadFilled, EditPen } from "@element-plus/icons-vue";
 import { serverHost } from "@/config/config.default.js";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { regionData } from "element-china-area-data";
+import { ElMessage} from "element-plus";
 import request from "@/utils/request.js";
 
 import '@wangeditor/editor/dist/css/style.css'

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yong.pojo.Result;
 import com.yong.pojo.User;
+import com.yong.pojo.UserLocation;
 import com.yong.service.UserService;
 
 import cn.hutool.core.util.StrUtil;
@@ -102,9 +103,9 @@ public class UserController {
     // 更新位置（传入用户id，经度、纬度）
     @PutMapping("/location")
     public Result updateLocationById(@RequestHeader("Authorization") String token,
-            @RequestParam Double longitude,
-            @RequestParam Double latitude) {
-        userService.updateLocationById(token, longitude, latitude);
+            @RequestBody UserLocation userLocation) {
+        log.info("更新位置：{}", userLocation);
+        userService.updateLocationById(token, userLocation.getLongitude(), userLocation.getLatitude());
         return Result.success();
     }
 
@@ -124,8 +125,8 @@ public class UserController {
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) LocalDateTime lastCreatedAt,
             @RequestHeader("Authorization") String token) {
-        log.info("keyword:{}",keyword);
-        List<User> userList= userService.relations(keyword, type, size, lastCreatedAt,token);
+        log.info("keyword:{}", keyword);
+        List<User> userList = userService.relations(keyword, type, size, lastCreatedAt, token);
         return Result.success(userList);
     }
 

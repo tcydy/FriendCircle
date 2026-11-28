@@ -389,13 +389,21 @@
                 },
                 {
                     "name": "更新位置",
-                    "description": "【当前代码有 bug】方法签名是 @PutMapping(\"/location\") + @PathVariable String id，但映射路径里没有 {id} 占位符，调用时会因缺少路径变量直接报错。\n修复方式：改成 @PutMapping(\"/location/{id}\")，本请求把 id 放到 query 里也一样不生效。\n改完映射后，请求地址应为 {{baseUrl}}/users/location/{{userId}}?longitude=...&latitude=...",
+                    "description": "",
                     "event": [],
                     "auth": {},
                     "request": {
                         "auth": {},
                         "method": "PUT",
-                        "body": {},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"longitude\": \"74.6747\",\n    \"latitude\": \"46.5293\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/users/location",
@@ -406,20 +414,7 @@
                             "host": [
                                 "{{baseUrl}}"
                             ],
-                            "query": [
-                                {
-                                    "key": "longitude",
-                                    "value": "113.2644",
-                                    "description": "经度",
-                                    "type": "string"
-                                },
-                                {
-                                    "key": "latitude",
-                                    "value": "23.1291",
-                                    "description": "纬度",
-                                    "type": "string"
-                                }
-                            ],
+                            "query": [],
                             "variable": []
                         }
                     },
@@ -750,7 +745,15 @@
                     "request": {
                         "auth": {},
                         "method": "PUT",
-                        "body": {},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"postId\": \"6b07a3a3fb6ec9d0c4c53725\",\n    \"locationName\": \"95号楼\",\n    \"longitude\": \"73.4108\",\n    \"latitude\": \"0.1692\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/posts/location",
@@ -761,32 +764,7 @@
                             "host": [
                                 "{{baseUrl}}"
                             ],
-                            "query": [
-                                {
-                                    "key": "postId",
-                                    "value": "6b07a3a3fb6ec9d0c4c53725",
-                                    "description": "帖子Id",
-                                    "type": "string"
-                                },
-                                {
-                                    "key": "locationName",
-                                    "value": "图书馆",
-                                    "description": "地点名",
-                                    "type": "string"
-                                },
-                                {
-                                    "key": "longitude",
-                                    "value": "113.2643",
-                                    "description": "经度",
-                                    "type": "string"
-                                },
-                                {
-                                    "key": "latitude",
-                                    "value": "23.1295",
-                                    "description": "纬度",
-                                    "type": "string"
-                                }
-                            ],
+                            "query": [],
                             "variable": []
                         }
                     },
